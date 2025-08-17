@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import {
   Dialog,
   DialogContent,
@@ -55,10 +55,7 @@ import {
   MoreVertical,
   Star,
   Calendar,
-  Clock,
-  Euro,
   AlertTriangle,
-  CheckCircle,
   Grid3X3,
   List,
   User,

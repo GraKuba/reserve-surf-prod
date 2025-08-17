@@ -19,7 +19,7 @@ import {
 
 export default function BookingPayment() {
   const navigate = useNavigate();
-  const [paymentMethod, setPaymentMethod] = useState("card");
+
   const [smsReminder, setSmsReminder] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);

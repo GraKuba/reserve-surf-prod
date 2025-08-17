@@ -38,7 +38,6 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({
   children,
-  pageTitle = "Dashboard",
   breadcrumbs = [],
   showQuickActions = true,
 }: DashboardLayoutProps) {

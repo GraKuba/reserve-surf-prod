@@ -35,7 +35,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+
 import {
   Select,
   SelectContent,
@@ -68,18 +68,11 @@ import {
 import { DashboardLayout } from "@/components/DashboardLayout";
 import {
   TrendingUp,
-  TrendingDown,
   Calendar as CalendarIcon,
   Download,
-  Filter,
   BarChart3,
   LineChart as LineChartIcon,
-  PieChart as PieChartIcon,
   Table as TableIcon,
-  Euro,
-  Users,
-  Activity,
-  Clock,
   ChevronDown,
   FileText,
   Mail,
@@ -185,14 +178,6 @@ export default function Reports() {
     customerRetention: 68,
     revenueGrowth: 12.5,
     bookingGrowth: 8.3,
-  };
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
   };
 
   return (
@@ -505,7 +490,7 @@ export default function Reports() {
                           paddingAngle={5}
                           dataKey="value"
                         >
-                          {activityBreakdown.map((entry, index) => (
+                          {activityBreakdown.map((_, index) => (
                             <Cell
                               key={`cell-${index}`}
                               fill={pieColors[index % pieColors.length]}

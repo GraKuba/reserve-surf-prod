@@ -36,10 +36,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { DashboardLayout } from "@/components/DashboardLayout";
 import {
-  Settings as SettingsIcon,
   Building,
   Calendar,
   CreditCard,
@@ -47,20 +46,15 @@ import {
   Waves,
   Zap,
   Users,
-  Receipt,
   Save,
   Upload,
   CheckCircle,
   XCircle,
   Clock,
-  Globe,
   Mail,
   Phone,
-  MapPin,
   Camera,
-  Palette,
   Shield,
-  Key,
   Database,
   Webhook,
   ExternalLink,

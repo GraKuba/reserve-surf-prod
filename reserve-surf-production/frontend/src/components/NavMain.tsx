@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { type LucideIcon } from "lucide-react";
 
@@ -29,7 +28,6 @@ export function NavMain({
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 asChild
-                tooltip={item.title}
                 isActive={location.pathname === item.url}
               >
                 <Link to={item.url}>

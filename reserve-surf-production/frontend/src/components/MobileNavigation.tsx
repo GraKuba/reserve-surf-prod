@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   BarChart3,
@@ -11,10 +10,8 @@ import {
 import { cn } from "@/lib/utils";
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuList,
-  NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import {
   DropdownMenu,
