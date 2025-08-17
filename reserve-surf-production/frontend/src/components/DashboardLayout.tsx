@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Outlet } from "react-router-dom";
-import { Bell, Plus, Search } from "lucide-react";
+import { Bell, Plus } from "lucide-react";
 
 import { AppSidebar } from "@/components/AppSidebar";
 import { MobileNavigation } from "@/components/MobileNavigation";
@@ -13,7 +13,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Command, CommandInput } from "@/components/ui/command";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -86,13 +85,6 @@ export function DashboardLayout({
 
           {/* Right side actions */}
           <div className="ml-auto flex items-center gap-2">
-            {/* Global Search */}
-            <div className="relative hidden md:block">
-              <Command className="rounded-lg border shadow-none w-64">
-                <CommandInput placeholder="Search..." className="h-9" />
-              </Command>
-            </div>
-
             {/* Notifications */}
             <Button variant="ghost" size="icon">
               <Bell className="h-4 w-4" />

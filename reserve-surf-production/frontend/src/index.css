@@ -206,3 +206,45 @@
     cursor: not-allowed;
   }
 }
+
+/* Custom animations for floating shapes */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  25% { transform: translateY(-20px) translateX(10px); }
+  50% { transform: translateY(-10px) translateX(-15px); }
+  75% { transform: translateY(-30px) translateX(5px); }
+}
+
+@keyframes drift {
+  0%, 100% { transform: translateX(0px) translateY(0px); }
+  33% { transform: translateX(30px) translateY(-20px); }
+  66% { transform: translateX(-20px) translateY(-15px); }
+}
+
+@keyframes sway {
+  0%, 100% { transform: translateX(0px) rotate(0deg); }
+  50% { transform: translateX(25px) rotate(5deg); }
+}
+
+@keyframes rotate {
+  0% { transform: rotate(12deg) translateX(0px) translateY(0px); }
+  25% { transform: rotate(15deg) translateX(10px) translateY(-5px); }
+  50% { transform: rotate(18deg) translateX(-5px) translateY(-10px); }
+  75% { transform: rotate(10deg) translateX(15px) translateY(5px); }
+  100% { transform: rotate(12deg) translateX(0px) translateY(0px); }
+}
+
+@keyframes wave1 {
+  0%, 100% { clip-path: polygon(0 50%, 100% 80%, 100% 100%, 0 100%); }
+  50% { clip-path: polygon(0 40%, 100% 70%, 100% 100%, 0 100%); }
+}
+
+@keyframes wave2 {
+  0%, 100% { clip-path: polygon(0 70%, 100% 40%, 100% 100%, 0 100%); }
+  50% { clip-path: polygon(0 60%, 100% 50%, 100% 100%, 0 100%); }
+}
+
+@keyframes wave3 {
+  0%, 100% { clip-path: polygon(0 60%, 100% 90%, 100% 100%, 0 100%); }
+  50% { clip-path: polygon(0 70%, 100% 80%, 100% 100%, 0 100%); }
+}
