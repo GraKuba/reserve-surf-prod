@@ -1,0 +1,25 @@
+[project]
+name = "reserve-surf-backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "celery>=5.5.3",
+    "django>=5.2",
+    "django-cors-headers>=4.7.0",
+    "djangorestframework>=3.16.0",
+    "pillow>=11.3.0",
+    "psycopg>=3.2.9",
+    "python-dotenv>=1.1.1",
+    "redis>=6.4.0",
+]
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "isort>=5.1.0",
+    "pre-commit>=4.3.0",
+    "pytest>=8.0",
+    "pytest-django>=4.8",
+]

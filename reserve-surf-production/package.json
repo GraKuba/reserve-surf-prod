@@ -1,0 +1,32 @@
+{
+  "name": "reserve-surf-production",
+  "version": "1.0.0",
+  "description": "Full-stack web application with React + Vite + Django + DRF",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && uv run python manage.py runserver",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "preview": "cd frontend && npm run preview",
+    "backend:migrate": "cd backend && uv run python manage.py migrate",
+    "backend:createsuperuser": "cd backend && uv run python manage.py createsuperuser",
+    "backend:shell": "cd backend && uv run python manage.py shell",
+    "install": "npm run install:frontend && npm run install:backend",
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && uv sync"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "keywords": [
+    "react",
+    "vite",
+    "django",
+    "drf",
+    "tailwindcss",
+    "shadcn-ui",
+    "typescript"
+  ],
+  "author": "Reserve Surf Production Team",
+  "license": "MIT"
+}
