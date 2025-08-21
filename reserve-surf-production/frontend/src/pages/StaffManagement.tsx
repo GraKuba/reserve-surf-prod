@@ -1,4 +1,71 @@
 import { useState } from "react";
+
+// TypeScript interfaces
+interface StaffMember {
+  id: number;
+  name: string;
+  role: string;
+  avatar: string;
+  status: string;
+  rating: number;
+  totalBookings: number;
+  revenue: number;
+  hoursThisWeek: number;
+  nextShift: string;
+  phone: string;
+  email: string;
+  location: string;
+  certifications: string[];
+  languages: string[];
+  specialties: string[];
+  joinDate: string;
+  hourlyRate: number;
+}
+
+interface SickLeaveRequest {
+  id: number;
+  staffId: number;
+  staffName: string;
+  staffAvatar: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  days: number;
+  reason: string;
+  status: "pending" | "approved" | "denied";
+  submittedDate: string;
+  approvedBy: string | null;
+  notes: string;
+}
+
+interface PayrollStaff {
+  staffId: number;
+  staffName: string;
+  staffAvatar: string;
+  role: string;
+  hoursWorked: number;
+  hourlyRate: number;
+  regularPay: number;
+  overtimePay: number;
+  bonuses: number;
+  deductions: number;
+  netPay: number;
+  taxWithheld: number;
+  socialSecurity: number;
+  totalBookings: number;
+  avgRating: number;
+}
+
+interface MonthlyPayrollData {
+  totalCost: number;
+  totalHours: number;
+  averageHourlyRate: number;
+  staffPayroll: PayrollStaff[];
+}
+
+interface PayrollData {
+  [month: string]: MonthlyPayrollData;
+}
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -65,11 +132,67 @@ import {
   Award,
   Languages,
   Briefcase,
+  Heart,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  DollarSign,
+  TrendingUp,
+  FileText,
 } from "lucide-react";
+
+// Utility functions
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "active":
+      return "secondary";
+    case "break":
+      return "outline";
+    case "offline":
+      return "destructive";
+    default:
+      return "outline";
+  }
+};
+
+const getSickLeaveStatusColor = (status: string) => {
+  switch (status) {
+    case "approved":
+      return "secondary";
+    case "pending":
+      return "outline";
+    case "denied":
+      return "destructive";
+    default:
+      return "outline";
+  }
+};
+
+const renderStars = (rating: number) => {
+  return Array.from({ length: 5 }, (_, i) => (
+    <Star
+      key={i}
+      className={`h-3 w-3 ${
+        i < Math.floor(rating)
+          ? "fill-yellow-400 text-yellow-400"
+          : "text-gray-300"
+      }`}
+    />
+  ));
+};
 
 export default function StaffManagement() {
   const [showStaffModal, setShowStaffModal] = useState(false);
-  const [selectedStaff, setSelectedStaff] = useState<any>(null);
+  const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
+  const [showSickLeaveModal, setShowSickLeaveModal] = useState(false);
+  const [selectedSickLeave, setSelectedSickLeave] =
+    useState<SickLeaveRequest | null>(null);
+  const [selectedPayrollMonth, setSelectedPayrollMonth] =
+    useState<string>("2024-01");
+  const [showPayrollDetail, setShowPayrollDetail] = useState(false);
+  const [selectedPayrollStaff, setSelectedPayrollStaff] =
+    useState<PayrollStaff | null>(null);
 
   // Mock staff data
   const staffMembers = [
@@ -170,31 +293,300 @@ export default function StaffManagement() {
     },
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "secondary";
-      case "break":
-        return "outline";
-      case "offline":
-        return "destructive";
-      default:
-        return "outline";
-    }
+  // Mock sick leave data
+  const sickLeaveRequests: SickLeaveRequest[] = [
+    {
+      id: 1,
+      staffId: 1,
+      staffName: "Carlos Silva",
+      staffAvatar: "/avatars/carlos.jpg",
+      type: "Sick Leave",
+      startDate: "2024-01-15",
+      endDate: "2024-01-17",
+      days: 3,
+      reason: "Flu symptoms",
+      status: "approved",
+      submittedDate: "2024-01-14",
+      approvedBy: "Manager",
+      notes: "Doctor's certificate provided",
+    },
+    {
+      id: 2,
+      staffId: 2,
+      staffName: "Ana Costa",
+      staffAvatar: "/avatars/ana.jpg",
+      type: "Medical Leave",
+      startDate: "2024-01-20",
+      endDate: "2024-01-22",
+      days: 3,
+      reason: "Medical appointment and recovery",
+      status: "pending",
+      submittedDate: "2024-01-18",
+      approvedBy: null,
+      notes: "Routine medical procedure",
+    },
+    {
+      id: 3,
+      staffId: 3,
+      staffName: "Miguel Santos",
+      staffAvatar: "/avatars/miguel.jpg",
+      type: "Sick Leave",
+      startDate: "2024-01-10",
+      endDate: "2024-01-12",
+      days: 3,
+      reason: "Back injury",
+      status: "denied",
+      submittedDate: "2024-01-09",
+      approvedBy: "Manager",
+      notes: "Insufficient medical documentation",
+    },
+    {
+      id: 4,
+      staffId: 4,
+      staffName: "Sofia Alves",
+      staffAvatar: "/avatars/sofia.jpg",
+      type: "Personal Leave",
+      startDate: "2024-01-25",
+      endDate: "2024-01-26",
+      days: 2,
+      reason: "Family emergency",
+      status: "approved",
+      submittedDate: "2024-01-24",
+      approvedBy: "Manager",
+      notes: "Emergency situation approved",
+    },
+  ];
+
+  // Mock payroll data
+  const payrollData: PayrollData = {
+    "2024-01": {
+      totalCost: 18750,
+      totalHours: 520,
+      averageHourlyRate: 23.5,
+      staffPayroll: [
+        {
+          staffId: 1,
+          staffName: "Carlos Silva",
+          staffAvatar: "/avatars/carlos.jpg",
+          role: "Senior Surf Instructor",
+          hoursWorked: 160,
+          hourlyRate: 25,
+          regularPay: 4000,
+          overtimePay: 0,
+          bonuses: 200,
+          deductions: 80,
+          netPay: 4120,
+          taxWithheld: 412,
+          socialSecurity: 165,
+          totalBookings: 28,
+          avgRating: 4.9,
+        },
+        {
+          staffId: 2,
+          staffName: "Ana Costa",
+          staffAvatar: "/avatars/ana.jpg",
+          role: "Surf Instructor",
+          hoursWorked: 140,
+          hourlyRate: 22,
+          regularPay: 3080,
+          overtimePay: 0,
+          bonuses: 150,
+          deductions: 60,
+          netPay: 3170,
+          taxWithheld: 317,
+          socialSecurity: 123,
+          totalBookings: 24,
+          avgRating: 4.8,
+        },
+        {
+          staffId: 3,
+          staffName: "Miguel Santos",
+          staffAvatar: "/avatars/miguel.jpg",
+          role: "Kite Instructor",
+          hoursWorked: 120,
+          hourlyRate: 30,
+          regularPay: 3600,
+          overtimePay: 0,
+          bonuses: 300,
+          deductions: 40,
+          netPay: 3860,
+          taxWithheld: 386,
+          socialSecurity: 144,
+          totalBookings: 18,
+          avgRating: 4.7,
+        },
+        {
+          staffId: 4,
+          staffName: "Sofia Alves",
+          staffAvatar: "/avatars/sofia.jpg",
+          role: "Assistant & Photographer",
+          hoursWorked: 100,
+          hourlyRate: 15,
+          regularPay: 1500,
+          overtimePay: 0,
+          bonuses: 50,
+          deductions: 20,
+          netPay: 1530,
+          taxWithheld: 153,
+          socialSecurity: 60,
+          totalBookings: 12,
+          avgRating: 4.6,
+        },
+      ],
+    },
+    "2023-12": {
+      totalCost: 17200,
+      totalHours: 480,
+      averageHourlyRate: 23.2,
+      staffPayroll: [
+        {
+          staffId: 1,
+          staffName: "Carlos Silva",
+          staffAvatar: "/avatars/carlos.jpg",
+          role: "Senior Surf Instructor",
+          hoursWorked: 150,
+          hourlyRate: 25,
+          regularPay: 3750,
+          overtimePay: 0,
+          bonuses: 180,
+          deductions: 75,
+          netPay: 3855,
+          taxWithheld: 385,
+          socialSecurity: 150,
+          totalBookings: 26,
+          avgRating: 4.9,
+        },
+        {
+          staffId: 2,
+          staffName: "Ana Costa",
+          staffAvatar: "/avatars/ana.jpg",
+          role: "Surf Instructor",
+          hoursWorked: 130,
+          hourlyRate: 22,
+          regularPay: 2860,
+          overtimePay: 0,
+          bonuses: 140,
+          deductions: 55,
+          netPay: 2945,
+          taxWithheld: 294,
+          socialSecurity: 114,
+          totalBookings: 22,
+          avgRating: 4.8,
+        },
+        {
+          staffId: 3,
+          staffName: "Miguel Santos",
+          staffAvatar: "/avatars/miguel.jpg",
+          role: "Kite Instructor",
+          hoursWorked: 110,
+          hourlyRate: 30,
+          regularPay: 3300,
+          overtimePay: 0,
+          bonuses: 280,
+          deductions: 35,
+          netPay: 3545,
+          taxWithheld: 354,
+          socialSecurity: 132,
+          totalBookings: 16,
+          avgRating: 4.7,
+        },
+        {
+          staffId: 4,
+          staffName: "Sofia Alves",
+          staffAvatar: "/avatars/sofia.jpg",
+          role: "Assistant & Photographer",
+          hoursWorked: 90,
+          hourlyRate: 15,
+          regularPay: 1350,
+          overtimePay: 0,
+          bonuses: 45,
+          deductions: 18,
+          netPay: 1377,
+          taxWithheld: 137,
+          socialSecurity: 54,
+          totalBookings: 10,
+          avgRating: 4.6,
+        },
+      ],
+    },
+    "2023-11": {
+      totalCost: 16800,
+      totalHours: 465,
+      averageHourlyRate: 23.1,
+      staffPayroll: [
+        {
+          staffId: 1,
+          staffName: "Carlos Silva",
+          staffAvatar: "/avatars/carlos.jpg",
+          role: "Senior Surf Instructor",
+          hoursWorked: 145,
+          hourlyRate: 25,
+          regularPay: 3625,
+          overtimePay: 0,
+          bonuses: 170,
+          deductions: 70,
+          netPay: 3725,
+          taxWithheld: 372,
+          socialSecurity: 145,
+          totalBookings: 25,
+          avgRating: 4.9,
+        },
+        {
+          staffId: 2,
+          staffName: "Ana Costa",
+          staffAvatar: "/avatars/ana.jpg",
+          role: "Surf Instructor",
+          hoursWorked: 125,
+          hourlyRate: 22,
+          regularPay: 2750,
+          overtimePay: 0,
+          bonuses: 130,
+          deductions: 50,
+          netPay: 2830,
+          taxWithheld: 283,
+          socialSecurity: 110,
+          totalBookings: 21,
+          avgRating: 4.8,
+        },
+        {
+          staffId: 3,
+          staffName: "Miguel Santos",
+          staffAvatar: "/avatars/miguel.jpg",
+          role: "Kite Instructor",
+          hoursWorked: 105,
+          hourlyRate: 30,
+          regularPay: 3150,
+          overtimePay: 0,
+          bonuses: 260,
+          deductions: 32,
+          netPay: 3378,
+          taxWithheld: 337,
+          socialSecurity: 126,
+          totalBookings: 15,
+          avgRating: 4.7,
+        },
+        {
+          staffId: 4,
+          staffName: "Sofia Alves",
+          staffAvatar: "/avatars/sofia.jpg",
+          role: "Assistant & Photographer",
+          hoursWorked: 90,
+          hourlyRate: 15,
+          regularPay: 1350,
+          overtimePay: 0,
+          bonuses: 40,
+          deductions: 15,
+          netPay: 1375,
+          taxWithheld: 137,
+          socialSecurity: 54,
+          totalBookings: 9,
+          avgRating: 4.6,
+        },
+      ],
+    },
   };
 
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star
-        key={i}
-        className={`h-3 w-3 ${
-          i < Math.floor(rating)
-            ? "fill-yellow-400 text-yellow-400"
-            : "text-gray-300"
-        }`}
-      />
-    ));
-  };
+  const availableMonths = Object.keys(payrollData).sort().reverse();
 
   return (
     <DashboardLayout
@@ -301,7 +693,7 @@ export default function StaffManagement() {
 
         {/* Staff Views with Tabs */}
         <Tabs defaultValue="grid" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="grid" className="flex items-center gap-2">
               <Grid3X3 className="h-4 w-4" />
               Grid View
@@ -313,6 +705,14 @@ export default function StaffManagement() {
             <TabsTrigger value="schedule" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
               Schedule
+            </TabsTrigger>
+            <TabsTrigger value="sicleave" className="flex items-center gap-2">
+              <Heart className="h-4 w-4" />
+              Sick Leave
+            </TabsTrigger>
+            <TabsTrigger value="payroll" className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Payroll
             </TabsTrigger>
           </TabsList>
 
@@ -341,7 +741,12 @@ export default function StaffManagement() {
                         </CardDescription>
                         <div className="flex items-center gap-2">
                           <Badge
-                            variant={getStatusColor(staff.status) as any}
+                            variant={
+                              getStatusColor(staff.status) as
+                                | "secondary"
+                                | "outline"
+                                | "destructive"
+                            }
                             className="text-xs"
                           >
                             {staff.status}
@@ -545,7 +950,14 @@ export default function StaffManagement() {
                         </TableCell>
                         <TableCell>{staff.role}</TableCell>
                         <TableCell>
-                          <Badge variant={getStatusColor(staff.status) as any}>
+                          <Badge
+                            variant={
+                              getStatusColor(staff.status) as
+                                | "secondary"
+                                | "outline"
+                                | "destructive"
+                            }
+                          >
                             {staff.status}
                           </Badge>
                         </TableCell>
@@ -612,6 +1024,325 @@ export default function StaffManagement() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="sicleave" className="mt-6">
+            <div className="space-y-6">
+              {/* Sick Leave Management */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Sick Leave Requests</CardTitle>
+                      <CardDescription>
+                        Manage staff sick leave and medical requests
+                      </CardDescription>
+                    </div>
+                    <Dialog
+                      open={showSickLeaveModal}
+                      onOpenChange={setShowSickLeaveModal}
+                    >
+                      <DialogTrigger asChild>
+                        <Button>
+                          <Plus className="h-4 w-4 mr-2" />
+                          New Request
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>Submit Sick Leave Request</DialogTitle>
+                          <DialogDescription>
+                            Fill out the form below to submit a new sick leave
+                            request
+                          </DialogDescription>
+                        </DialogHeader>
+                        <SickLeaveForm />
+                        <DialogFooter>
+                          <Button
+                            variant="outline"
+                            onClick={() => setShowSickLeaveModal(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button>Submit Request</Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Staff Member</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Duration</TableHead>
+                        <TableHead>Reason</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Submitted</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {sickLeaveRequests.map((request) => (
+                        <TableRow key={request.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage
+                                  src={request.staffAvatar}
+                                  alt={request.staffName}
+                                />
+                                <AvatarFallback>
+                                  {request.staffName[0]}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className="font-medium">
+                                  {request.staffName}
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{request.type}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">
+                                {request.days} days
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {request.startDate} to {request.endDate}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div
+                              className="max-w-[200px] truncate"
+                              title={request.reason}
+                            >
+                              {request.reason}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                getSickLeaveStatusColor(request.status) as
+                                  | "secondary"
+                                  | "outline"
+                                  | "destructive"
+                              }
+                            >
+                              <div className="flex items-center gap-1">
+                                {request.status === "approved" && (
+                                  <CheckCircle className="h-3 w-3" />
+                                )}
+                                {request.status === "pending" && (
+                                  <Clock className="h-3 w-3" />
+                                )}
+                                {request.status === "denied" && (
+                                  <XCircle className="h-3 w-3" />
+                                )}
+                                {request.status}
+                              </div>
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm text-muted-foreground">
+                              {request.submittedDate}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent>
+                                <DropdownMenuItem
+                                  onClick={() => setSelectedSickLeave(request)}
+                                >
+                                  View Details
+                                </DropdownMenuItem>
+                                {request.status === "pending" && (
+                                  <>
+                                    <DropdownMenuItem>Approve</DropdownMenuItem>
+                                    <DropdownMenuItem>Deny</DropdownMenuItem>
+                                  </>
+                                )}
+                                <DropdownMenuItem>Edit</DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="payroll" className="mt-6">
+            <div className="space-y-6">
+
+
+              {/* Month Selection and Payroll Details */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Monthly Payroll Breakdown</CardTitle>
+                      <CardDescription>
+                        Detailed staff payment information by month
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Select
+                        value={selectedPayrollMonth}
+                        onValueChange={setSelectedPayrollMonth}
+                      >
+                        <SelectTrigger className="w-40">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableMonths.map((month) => (
+                            <SelectItem key={month} value={month}>
+                              {new Date(month + "-01").toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "long",
+                                }
+                              )}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button variant="outline">
+                        <FileText className="h-4 w-4 mr-2" />
+                        Export Payroll
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Staff Member</TableHead>
+                        <TableHead>Hours</TableHead>
+                        <TableHead>Rate</TableHead>
+                        <TableHead>Regular Pay</TableHead>
+                        <TableHead>Bonuses</TableHead>
+                        <TableHead>Deductions</TableHead>
+                        <TableHead>Net Pay</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {payrollData[selectedPayrollMonth]?.staffPayroll.map(
+                        (staff) => (
+                          <TableRow key={staff.staffId}>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage
+                                    src={staff.staffAvatar}
+                                    alt={staff.staffName}
+                                  />
+                                  <AvatarFallback>
+                                    {staff.staffName[0]}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <div className="font-medium">
+                                    {staff.staffName}
+                                  </div>
+                                  <div className="text-sm text-muted-foreground">
+                                    {staff.role}
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="font-medium">
+                                {staff.hoursWorked}h
+                              </div>
+                            </TableCell>
+                            <TableCell>€{staff.hourlyRate}</TableCell>
+                            <TableCell>
+                              €{staff.regularPay.toLocaleString()}
+                            </TableCell>
+                            <TableCell>
+                              <span className="text-green-600 font-medium">
+                                +€{staff.bonuses}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <span className="text-red-600 font-medium">
+                                -€{staff.deductions}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <div className="font-bold text-lg">
+                                €{staff.netPay.toLocaleString()}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      setSelectedPayrollStaff(staff);
+                                      setShowPayrollDetail(true);
+                                    }}
+                                  >
+                                    View Details
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    Edit Payroll
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    Generate Payslip
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              {/* Payroll Summary Chart Placeholder */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Payroll Trends</CardTitle>
+                  <CardDescription>
+                    Monthly payroll costs and staff payment distribution
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center text-muted-foreground py-8">
+                    <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>Payroll analytics chart coming soon</p>
+                    <p className="text-sm">
+                      Track monthly trends and cost analysis
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
         </Tabs>
 
         {/* Staff Detail Modal */}
@@ -636,6 +1367,74 @@ export default function StaffManagement() {
                   Close
                 </Button>
                 <Button>Edit Profile</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {/* Sick Leave Detail Modal */}
+        {selectedSickLeave && (
+          <Dialog
+            open={!!selectedSickLeave}
+            onOpenChange={() => setSelectedSickLeave(null)}
+          >
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Sick Leave Details</DialogTitle>
+                <DialogDescription>
+                  Request information and approval status
+                </DialogDescription>
+              </DialogHeader>
+              <SickLeaveDetailView sickLeave={selectedSickLeave} />
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedSickLeave(null)}
+                >
+                  Close
+                </Button>
+                {selectedSickLeave.status === "pending" && (
+                  <>
+                    <Button variant="outline">Deny</Button>
+                    <Button>Approve</Button>
+                  </>
+                )}
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {/* Payroll Detail Modal */}
+        {selectedPayrollStaff && (
+          <Dialog open={showPayrollDetail} onOpenChange={setShowPayrollDetail}>
+            <DialogContent className="max-w-4xl">
+              <DialogHeader>
+                <DialogTitle>
+                  Payroll Details - {selectedPayrollStaff.staffName}
+                </DialogTitle>
+                <DialogDescription>
+                  Detailed payroll breakdown for {selectedPayrollMonth}
+                </DialogDescription>
+              </DialogHeader>
+              <PayrollDetailView
+                staff={selectedPayrollStaff}
+                month={selectedPayrollMonth}
+              />
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowPayrollDetail(false);
+                    setSelectedPayrollStaff(null);
+                  }}
+                >
+                  Close
+                </Button>
+                <Button variant="outline">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Generate Payslip
+                </Button>
+                <Button>Edit Payroll</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -729,7 +1528,7 @@ function StaffForm() {
 }
 
 // Staff Detail View Component
-function StaffDetailView({ staff }: { staff: any }) {
+function StaffDetailView({ staff }: { staff: StaffMember }) {
   return (
     <Tabs defaultValue="personal" className="w-full">
       <TabsList className="grid w-full grid-cols-4">
@@ -778,7 +1577,14 @@ function StaffDetailView({ staff }: { staff: any }) {
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Status</span>
-                <Badge variant={getStatusColor(staff.status) as any}>
+                <Badge
+                  variant={
+                    getStatusColor(staff.status) as
+                      | "secondary"
+                      | "outline"
+                      | "destructive"
+                  }
+                >
                   {staff.status}
                 </Badge>
               </div>
@@ -898,28 +1704,484 @@ function StaffDetailView({ staff }: { staff: any }) {
   );
 }
 
-function getStatusColor(status: string) {
-  switch (status) {
-    case "active":
-      return "secondary";
-    case "break":
-      return "outline";
-    case "offline":
-      return "destructive";
-    default:
-      return "outline";
-  }
+// Sick Leave Form Component
+function SickLeaveForm() {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="staff-select">Staff Member</Label>
+          <Select>
+            <SelectTrigger>
+              <SelectValue placeholder="Select staff member" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="carlos">Carlos Silva</SelectItem>
+              <SelectItem value="ana">Ana Costa</SelectItem>
+              <SelectItem value="miguel">Miguel Santos</SelectItem>
+              <SelectItem value="sofia">Sofia Alves</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="leave-type">Leave Type</Label>
+          <Select>
+            <SelectTrigger>
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="sick">Sick Leave</SelectItem>
+              <SelectItem value="medical">Medical Leave</SelectItem>
+              <SelectItem value="personal">Personal Leave</SelectItem>
+              <SelectItem value="emergency">Emergency Leave</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="start-date">Start Date</Label>
+          <Input id="start-date" type="date" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="end-date">End Date</Label>
+          <Input id="end-date" type="date" />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="reason">Reason for Leave</Label>
+        <Input id="reason" placeholder="Brief description of the reason" />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="notes">Additional Notes</Label>
+        <textarea
+          id="notes"
+          className="w-full min-h-[100px] p-3 border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 rounded-md"
+          placeholder="Any additional information or medical documentation details..."
+        />
+      </div>
+
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Documentation Required</AlertTitle>
+        <AlertDescription>
+          Medical certificates may be required for sick leave requests longer
+          than 3 days.
+        </AlertDescription>
+      </Alert>
+    </div>
+  );
 }
 
-function renderStars(rating: number) {
-  return Array.from({ length: 5 }, (_, i) => (
-    <Star
-      key={i}
-      className={`h-3 w-3 ${
-        i < Math.floor(rating)
-          ? "fill-yellow-400 text-yellow-400"
-          : "text-gray-300"
-      }`}
-    />
-  ));
+// Sick Leave Detail View Component
+function SickLeaveDetailView({ sickLeave }: { sickLeave: SickLeaveRequest }) {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Request Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage
+                  src={sickLeave.staffAvatar}
+                  alt={sickLeave.staffName}
+                />
+                <AvatarFallback>{sickLeave.staffName[0]}</AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="font-medium">{sickLeave.staffName}</div>
+                <div className="text-sm text-muted-foreground">
+                  {sickLeave.type}
+                </div>
+              </div>
+            </div>
+            <Separator />
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Duration</span>
+                <span className="text-sm font-medium">
+                  {sickLeave.days} days
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">
+                  Start Date
+                </span>
+                <span className="text-sm">{sickLeave.startDate}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">End Date</span>
+                <span className="text-sm">{sickLeave.endDate}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Submitted</span>
+                <span className="text-sm">{sickLeave.submittedDate}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Status & Approval</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Badge
+                variant={
+                  getSickLeaveStatusColor(sickLeave.status) as
+                    | "secondary"
+                    | "outline"
+                    | "destructive"
+                }
+                className="flex items-center gap-1"
+              >
+                {sickLeave.status === "approved" && (
+                  <CheckCircle className="h-3 w-3" />
+                )}
+                {sickLeave.status === "pending" && (
+                  <Clock className="h-3 w-3" />
+                )}
+                {sickLeave.status === "denied" && (
+                  <XCircle className="h-3 w-3" />
+                )}
+                {sickLeave.status}
+              </Badge>
+            </div>
+            <Separator />
+            <div className="space-y-2">
+              {sickLeave.approvedBy && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Approved By
+                  </span>
+                  <span className="text-sm">{sickLeave.approvedBy}</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">
+                  Request ID
+                </span>
+                <span className="text-sm">
+                  #{sickLeave.id.toString().padStart(4, "0")}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">Details</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div>
+            <div className="text-sm font-medium mb-1">Reason</div>
+            <div className="text-sm text-muted-foreground">
+              {sickLeave.reason}
+            </div>
+          </div>
+          {sickLeave.notes && (
+            <div>
+              <div className="text-sm font-medium mb-1">Additional Notes</div>
+              <div className="text-sm text-muted-foreground">
+                {sickLeave.notes}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Payroll Detail View Component
+function PayrollDetailView({
+  staff,
+  month,
+}: {
+  staff: PayrollStaff;
+  month: string;
+}) {
+  return (
+    <div className="space-y-6">
+      {/* Staff Overview */}
+      <div className="grid grid-cols-3 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Staff Information
+            </CardTitle>
+            <User className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-12 w-12">
+                <AvatarImage src={staff.staffAvatar} alt={staff.staffName} />
+                <AvatarFallback>{staff.staffName[0]}</AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="font-medium text-lg">{staff.staffName}</div>
+                <div className="text-sm text-muted-foreground">
+                  {staff.role}
+                </div>
+              </div>
+            </div>
+            <Separator />
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Period</span>
+                <span className="text-sm font-medium">
+                  {new Date(month + "-01").toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                  })}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">
+                  Hourly Rate
+                </span>
+                <span className="text-sm font-medium">€{staff.hourlyRate}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Hours & Performance
+            </CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">
+                  Hours Worked
+                </span>
+                <span className="text-sm font-medium">
+                  {staff.hoursWorked}h
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">
+                  Total Bookings
+                </span>
+                <span className="text-sm font-medium">
+                  {staff.totalBookings}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">
+                  Avg. Rating
+                </span>
+                <div className="flex items-center gap-1">
+                  {renderStars(staff.avgRating)}
+                  <span className="text-sm font-medium ml-1">
+                    {staff.avgRating}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Net Pay</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-600">
+              €{staff.netPay.toLocaleString()}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              After taxes and deductions
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Detailed Breakdown */}
+      <div className="grid grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Payment Breakdown</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Regular Pay</span>
+                <span className="text-sm font-medium">
+                  €{staff.regularPay.toLocaleString()}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Overtime Pay</span>
+                <span className="text-sm font-medium">
+                  €{staff.overtimePay}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-green-600">Bonuses</span>
+                <span className="text-sm font-medium text-green-600">
+                  +€{staff.bonuses}
+                </span>
+              </div>
+              <Separator />
+              <div className="flex justify-between items-center font-medium">
+                <span className="text-sm">Gross Pay</span>
+                <span className="text-sm">
+                  €
+                  {(
+                    staff.regularPay +
+                    staff.overtimePay +
+                    staff.bonuses
+                  ).toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Deductions & Taxes</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-red-600">Tax Withheld</span>
+                <span className="text-sm font-medium text-red-600">
+                  -€{staff.taxWithheld}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-red-600">Social Security</span>
+                <span className="text-sm font-medium text-red-600">
+                  -€{staff.socialSecurity}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-red-600">Other Deductions</span>
+                <span className="text-sm font-medium text-red-600">
+                  -€{staff.deductions}
+                </span>
+              </div>
+              <Separator />
+              <div className="flex justify-between items-center font-medium">
+                <span className="text-sm">Total Deductions</span>
+                <span className="text-sm text-red-600">
+                  -€
+                  {(
+                    staff.taxWithheld +
+                    staff.socialSecurity +
+                    staff.deductions
+                  ).toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Summary Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">Payroll Summary</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-4 gap-4 text-center">
+            <div className="space-y-2">
+              <div className="text-2xl font-bold text-blue-600">
+                €
+                {(
+                  staff.regularPay +
+                  staff.overtimePay +
+                  staff.bonuses
+                ).toLocaleString()}
+              </div>
+              <div className="text-xs text-muted-foreground">Gross Pay</div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-2xl font-bold text-red-600">
+                €
+                {(
+                  staff.taxWithheld +
+                  staff.socialSecurity +
+                  staff.deductions
+                ).toLocaleString()}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Total Deductions
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-2xl font-bold text-green-600">
+                €{staff.netPay.toLocaleString()}
+              </div>
+              <div className="text-xs text-muted-foreground">Net Pay</div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-2xl font-bold">
+                {(
+                  (staff.netPay /
+                    (staff.regularPay + staff.overtimePay + staff.bonuses)) *
+                  100
+                ).toFixed(1)}
+                %
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Take-home Rate
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Additional Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">Additional Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-sm font-medium mb-2">Payment Method</div>
+              <div className="text-sm text-muted-foreground">Bank Transfer</div>
+            </div>
+            <div>
+              <div className="text-sm font-medium mb-2">Payment Date</div>
+              <div className="text-sm text-muted-foreground">
+                {new Date(month + "-01").getDate() === 1
+                  ? new Date(
+                      new Date(month + "-01").getFullYear(),
+                      new Date(month + "-01").getMonth() + 1,
+                      0
+                    ).toLocaleDateString()
+                  : "End of month"}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm font-medium mb-2">Currency</div>
+              <div className="text-sm text-muted-foreground">EUR (€)</div>
+            </div>
+            <div>
+              <div className="text-sm font-medium mb-2">Status</div>
+              <Badge variant="secondary">Processed</Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

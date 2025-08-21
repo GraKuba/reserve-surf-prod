@@ -350,48 +350,6 @@ const HeroSection = () => {
           </AlertDescription>
         </Alert>
       </div>
-
-      {/* Ocean Status Widget */}
-      <div className="absolute bottom-8 right-8 z-20">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow">
-              <CardContent className="p-4 flex items-center space-x-2">
-                <div className="w-3 h-3 bg-chart-1 rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium text-foreground">
-                  Perfect for Beginners
-                </span>
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              </CardContent>
-            </Card>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="space-y-4">
-              <h4 className="font-medium text-foreground">
-                Current Ocean Conditions
-              </h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Wind:</span>
-                  <span className="text-foreground">12 knots NW</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Water Temp:</span>
-                  <span className="text-foreground">18°C</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Wave Height:</span>
-                  <span className="text-foreground">0.5-1.0m</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Next Update:</span>
-                  <span className="text-foreground">in 5 min</span>
-                </div>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
     </section>
   );
 };
@@ -501,7 +459,7 @@ const ActivitiesSection = () => {
               className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
             >
               <div className="relative">
-                <div className="aspect-[16/9] bg-gradient-to-br from-primary to-accent rounded-t-lg"></div>
+                <div className="aspect-[16/9] bg-gradient-to-br from-primary to-accent"></div>
                 <Badge className="absolute top-4 right-4 bg-card text-foreground">
                   From {activity.price}
                 </Badge>
@@ -621,12 +579,6 @@ const HowItWorksSection = () => {
               {/* Step Content */}
               <div className="relative z-10">
                 <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
-                  <Badge
-                    variant="secondary"
-                    className="absolute -top-2 -right-2 w-6 h-6 p-0 flex items-center justify-center bg-card text-primary border-2 border-primary"
-                  >
-                    {step.number}
-                  </Badge>
                   <step.icon className="h-8 w-8 text-primary-foreground" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-2 font-serif">
@@ -737,9 +689,9 @@ const InstructorShowcase = () => {
                 <Card className="h-full">
                   <CardContent className="p-6">
                     {/* Image Section */}
-                    <div className="text-center mb-4">
+                    <div className="text-center mb-6">
                       <div className="relative inline-block">
-                        <Avatar className="w-24 h-24 mx-auto mb-3">
+                        <Avatar className="w-24 h-24 mx-auto mb-4">
                           <AvatarImage
                             src={instructor.image}
                             alt={instructor.name}
@@ -767,18 +719,18 @@ const InstructorShowcase = () => {
                     </div>
 
                     {/* Info Section */}
-                    <div className="text-center mb-4">
-                      <h3 className="text-lg font-semibold text-foreground mb-1 font-serif">
+                    <div className="text-center mb-6">
+                      <h3 className="text-xl font-semibold text-foreground mb-3 font-serif">
                         {instructor.name}
                       </h3>
 
                       {/* Specialties */}
-                      <div className="flex justify-center flex-wrap gap-1 mb-2">
+                      <div className="flex justify-center flex-wrap gap-2 mb-4">
                         {instructor.specialties.map((specialty) => (
                           <Badge
                             key={specialty}
                             variant="outline"
-                            className="text-xs"
+                            className="text-xs px-2 py-1"
                           >
                             {specialty}
                           </Badge>
@@ -786,24 +738,24 @@ const InstructorShowcase = () => {
                       </div>
 
                       {/* Languages */}
-                      <div className="flex justify-center flex-wrap gap-1 mb-2">
+                      <div className="flex justify-center flex-wrap gap-2 mb-4">
                         {instructor.languages.map((language, index) => (
                           <Badge
                             key={index}
                             variant="secondary"
-                            className="text-xs"
+                            className="text-xs px-2 py-1"
                           >
                             {language}
                           </Badge>
                         ))}
                       </div>
 
-                      <p className="text-sm text-muted-foreground mb-2 font-sans">
+                      <p className="text-sm text-muted-foreground mb-3 font-sans">
                         {instructor.experience}
                       </p>
 
                       {/* Rating */}
-                      <div className="flex items-center justify-center space-x-1 mb-3">
+                      <div className="flex items-center justify-center space-x-2 mb-4">
                         <div className="flex">
                           {[1, 2, 3, 4, 5].map((star) => (
                             <Star
@@ -822,10 +774,15 @@ const InstructorShowcase = () => {
                       </div>
                     </div>
 
+                    {/* Separator */}
+                    <div className="border-t border-border mb-4"></div>
+
                     {/* Bio */}
                     <Collapsible>
                       <div className="text-sm text-muted-foreground text-center">
-                        <p className="mb-2 font-sans">{instructor.bio}</p>
+                        <p className="mb-3 font-sans leading-relaxed">
+                          {instructor.bio}
+                        </p>
                         <CollapsibleTrigger asChild>
                           <Button
                             variant="ghost"
@@ -835,10 +792,12 @@ const InstructorShowcase = () => {
                             Read more <ChevronDown className="h-4 w-4 ml-1" />
                           </Button>
                         </CollapsibleTrigger>
-                        <CollapsibleContent className="mt-2">
-                          <p className="text-sm text-muted-foreground font-sans">
-                            {instructor.fullBio}
-                          </p>
+                        <CollapsibleContent className="mt-3">
+                          <div className="border-t border-border pt-3">
+                            <p className="text-sm text-muted-foreground font-sans leading-relaxed">
+                              {instructor.fullBio}
+                            </p>
+                          </div>
                         </CollapsibleContent>
                       </div>
                     </Collapsible>

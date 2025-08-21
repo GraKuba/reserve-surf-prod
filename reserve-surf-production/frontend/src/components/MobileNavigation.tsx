@@ -50,6 +50,18 @@ const moreNavItems = [
     href: "/operator/reports",
   },
   {
+    title: "Pricing",
+    href: "/operator/pricing",
+  },
+  {
+    title: "Weather",
+    href: "/operator/weather",
+  },
+  {
+    title: "Equipment",
+    href: "/operator/equipment",
+  },
+  {
     title: "Settings",
     href: "/operator/settings",
   },

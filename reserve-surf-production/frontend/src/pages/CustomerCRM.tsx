@@ -29,12 +29,19 @@ import {
   Mail,
   Phone,
   Euro,
+  ChevronDown,
+  ChevronRight,
+  Calendar,
+  Clock,
+  MapPin,
+  Waves,
 } from "lucide-react";
 
 export default function CustomerCRM() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [expandedCustomer, setExpandedCustomer] = useState<number | null>(null);
 
-  // Mock customer data
+  // Mock customer data with booking history and upcoming bookings
   const customers = [
     {
       id: 1,
@@ -45,6 +52,51 @@ export default function CustomerCRM() {
       totalSpent: 450,
       totalBookings: 8,
       status: "active",
+      joinDate: "2023-05-15",
+      bookingHistory: [
+        {
+          id: 101,
+          date: "2024-03-10",
+          time: "09:00",
+          activity: "Surf Lesson",
+          location: "Ericeira Beach",
+          duration: "2 hours",
+          price: 55,
+          status: "completed",
+        },
+        {
+          id: 102,
+          date: "2024-02-28",
+          time: "14:00",
+          activity: "Board Rental",
+          location: "Carcavelos Beach",
+          duration: "4 hours",
+          price: 35,
+          status: "completed",
+        },
+        {
+          id: 103,
+          date: "2024-02-15",
+          time: "10:30",
+          activity: "Surf Lesson",
+          location: "Guincho Beach",
+          duration: "2 hours",
+          price: 60,
+          status: "completed",
+        },
+      ],
+      upcomingBookings: [
+        {
+          id: 201,
+          date: "2024-03-25",
+          time: "08:00",
+          activity: "Advanced Surf Lesson",
+          location: "Ericeira Beach",
+          duration: "3 hours",
+          price: 75,
+          status: "confirmed",
+        },
+      ],
     },
     {
       id: 2,
@@ -55,6 +107,51 @@ export default function CustomerCRM() {
       totalSpent: 280,
       totalBookings: 4,
       status: "active",
+      joinDate: "2023-08-22",
+      bookingHistory: [
+        {
+          id: 104,
+          date: "2024-03-15",
+          time: "11:00",
+          activity: "Surf Lesson",
+          location: "Costa da Caparica",
+          duration: "2 hours",
+          price: 50,
+          status: "completed",
+        },
+        {
+          id: 105,
+          date: "2024-03-01",
+          time: "16:00",
+          activity: "Board Rental",
+          location: "Cascais",
+          duration: "3 hours",
+          price: 30,
+          status: "completed",
+        },
+      ],
+      upcomingBookings: [
+        {
+          id: 202,
+          date: "2024-03-28",
+          time: "10:00",
+          activity: "Surf Lesson",
+          location: "Guincho Beach",
+          duration: "2 hours",
+          price: 55,
+          status: "confirmed",
+        },
+        {
+          id: 203,
+          date: "2024-04-05",
+          time: "09:30",
+          activity: "Board Rental",
+          location: "Ericeira Beach",
+          duration: "4 hours",
+          price: 40,
+          status: "pending",
+        },
+      ],
     },
     {
       id: 3,
@@ -65,6 +162,30 @@ export default function CustomerCRM() {
       totalSpent: 125,
       totalBookings: 2,
       status: "inactive",
+      joinDate: "2024-01-10",
+      bookingHistory: [
+        {
+          id: 106,
+          date: "2024-02-28",
+          time: "13:00",
+          activity: "Board Rental",
+          location: "Carcavelos Beach",
+          duration: "2 hours",
+          price: 25,
+          status: "completed",
+        },
+        {
+          id: 107,
+          date: "2024-01-20",
+          time: "15:30",
+          activity: "Beginner Surf Lesson",
+          location: "Costa da Caparica",
+          duration: "1.5 hours",
+          price: 45,
+          status: "completed",
+        },
+      ],
+      upcomingBookings: [],
     },
     {
       id: 4,
@@ -75,6 +196,61 @@ export default function CustomerCRM() {
       totalSpent: 680,
       totalBookings: 12,
       status: "vip",
+      joinDate: "2022-11-08",
+      bookingHistory: [
+        {
+          id: 108,
+          date: "2024-03-12",
+          time: "07:30",
+          activity: "Private Surf Coaching",
+          location: "Ericeira Beach",
+          duration: "3 hours",
+          price: 120,
+          status: "completed",
+        },
+        {
+          id: 109,
+          date: "2024-03-05",
+          time: "08:00",
+          activity: "Advanced Surf Lesson",
+          location: "Guincho Beach",
+          duration: "2.5 hours",
+          price: 85,
+          status: "completed",
+        },
+        {
+          id: 110,
+          date: "2024-02-22",
+          time: "09:00",
+          activity: "Surf Competition Training",
+          location: "Ericeira Beach",
+          duration: "4 hours",
+          price: 150,
+          status: "completed",
+        },
+      ],
+      upcomingBookings: [
+        {
+          id: 204,
+          date: "2024-03-30",
+          time: "07:00",
+          activity: "Private Surf Coaching",
+          location: "Ericeira Beach",
+          duration: "3 hours",
+          price: 120,
+          status: "confirmed",
+        },
+        {
+          id: 205,
+          date: "2024-04-08",
+          time: "08:30",
+          activity: "Advanced Surf Lesson",
+          location: "Guincho Beach",
+          duration: "2.5 hours",
+          price: 85,
+          status: "confirmed",
+        },
+      ],
     },
   ];
 
@@ -89,6 +265,44 @@ export default function CustomerCRM() {
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
+  };
+
+  const getBookingStatusBadge = (status: string) => {
+    switch (status) {
+      case "completed":
+        return (
+          <Badge variant="default" className="bg-green-100 text-green-800">
+            Completed
+          </Badge>
+        );
+      case "confirmed":
+        return (
+          <Badge variant="default" className="bg-blue-100 text-blue-800">
+            Confirmed
+          </Badge>
+        );
+      case "pending":
+        return (
+          <Badge
+            variant="outline"
+            className="text-orange-600 border-orange-300"
+          >
+            Pending
+          </Badge>
+        );
+      case "cancelled":
+        return (
+          <Badge variant="outline" className="text-red-600 border-red-300">
+            Cancelled
+          </Badge>
+        );
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const toggleCustomerExpansion = (customerId: number) => {
+    setExpandedCustomer(expandedCustomer === customerId ? null : customerId);
   };
 
   const filteredCustomers = customers.filter(
@@ -190,6 +404,7 @@ export default function CustomerCRM() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-8"></TableHead>
                   <TableHead>Customer</TableHead>
                   <TableHead>Contact</TableHead>
                   <TableHead>Last Booking</TableHead>
@@ -200,62 +415,329 @@ export default function CustomerCRM() {
               </TableHeader>
               <TableBody>
                 {filteredCustomers.map((customer) => (
-                  <TableRow key={customer.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback>
-                            {customer.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{customer.name}</div>
-                          <div className="text-sm text-gray-500">
-                            {customer.totalBookings} bookings
+                  <>
+                    <TableRow
+                      key={customer.id}
+                      className="cursor-pointer hover:bg-gray-50 transition-colors"
+                      onClick={() => toggleCustomerExpansion(customer.id)}
+                    >
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0"
+                        >
+                          <ChevronRight
+                            className={`h-4 w-4 transition-transform duration-200 ease-in-out ${
+                              expandedCustomer === customer.id
+                                ? "rotate-90"
+                                : "rotate-0"
+                            }`}
+                          />
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback>
+                              {customer.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">{customer.name}</div>
+                            <div className="text-sm text-gray-500">
+                              {customer.totalBookings} bookings
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Mail className="h-3 w-3" />
-                          {customer.email}
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 text-sm">
+                            <Mail className="h-3 w-3" />
+                            {customer.email}
+                          </div>
+                          <div className="flex items-center gap-2 text-sm">
+                            <Phone className="h-3 w-3" />
+                            {customer.phone}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Phone className="h-3 w-3" />
-                          {customer.phone}
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {new Date(customer.lastBooking).toLocaleDateString()}
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        {new Date(customer.lastBooking).toLocaleDateString()}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-medium">€{customer.totalSpent}</div>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(customer.status)}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View Profile</DropdownMenuItem>
-                          <DropdownMenuItem>Booking History</DropdownMenuItem>
-                          <DropdownMenuItem>Send Message</DropdownMenuItem>
-                          <DropdownMenuItem>Edit Customer</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium">
+                          €{customer.totalSpent}
+                        </div>
+                      </TableCell>
+                      <TableCell>{getStatusBadge(customer.status)}</TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>View Profile</DropdownMenuItem>
+                            <DropdownMenuItem>Booking History</DropdownMenuItem>
+                            <DropdownMenuItem>Send Message</DropdownMenuItem>
+                            <DropdownMenuItem>Edit Customer</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+
+                    {/* Expanded Row */}
+                    <TableRow>
+                      <TableCell colSpan={7} className="p-0">
+                        <div
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            expandedCustomer === customer.id
+                              ? "max-h-[800px] opacity-100"
+                              : "max-h-0 opacity-0"
+                          }`}
+                        >
+                          <div className="bg-gray-50 border-t border-gray-200">
+                            <div
+                              className={`p-6 space-y-6 transition-all duration-300 ease-in-out ${
+                                expandedCustomer === customer.id
+                                  ? "transform translate-y-0"
+                                  : "transform -translate-y-4"
+                              }`}
+                            >
+                              {/* Customer Details */}
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <Card
+                                  className={`transition-all duration-300 ease-in-out ${
+                                    expandedCustomer === customer.id
+                                      ? "opacity-100 transform translate-y-0"
+                                      : "opacity-0 transform translate-y-2"
+                                  }`}
+                                  style={{
+                                    transitionDelay:
+                                      expandedCustomer === customer.id
+                                        ? "100ms"
+                                        : "0ms",
+                                  }}
+                                >
+                                  <CardHeader className="pb-3">
+                                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                                      <Users className="h-4 w-4" />
+                                      Customer Details
+                                    </CardTitle>
+                                  </CardHeader>
+                                  <CardContent className="space-y-2">
+                                    <div className="text-sm">
+                                      <span className="font-medium">
+                                        Member since:
+                                      </span>{" "}
+                                      {new Date(
+                                        customer.joinDate
+                                      ).toLocaleDateString()}
+                                    </div>
+                                    <div className="text-sm">
+                                      <span className="font-medium">
+                                        Total bookings:
+                                      </span>{" "}
+                                      {customer.totalBookings}
+                                    </div>
+                                    <div className="text-sm">
+                                      <span className="font-medium">
+                                        Total spent:
+                                      </span>{" "}
+                                      €{customer.totalSpent}
+                                    </div>
+                                    <div className="text-sm">
+                                      <span className="font-medium">
+                                        Status:
+                                      </span>{" "}
+                                      {getStatusBadge(customer.status)}
+                                    </div>
+                                  </CardContent>
+                                </Card>
+
+                                <Card
+                                  className={`transition-all duration-300 ease-in-out ${
+                                    expandedCustomer === customer.id
+                                      ? "opacity-100 transform translate-y-0"
+                                      : "opacity-0 transform translate-y-2"
+                                  }`}
+                                  style={{
+                                    transitionDelay:
+                                      expandedCustomer === customer.id
+                                        ? "200ms"
+                                        : "0ms",
+                                  }}
+                                >
+                                  <CardHeader className="pb-3">
+                                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                                      <Calendar className="h-4 w-4" />
+                                      Upcoming Bookings
+                                    </CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                    {customer.upcomingBookings.length > 0 ? (
+                                      <div className="space-y-3">
+                                        {customer.upcomingBookings
+                                          .slice(0, 2)
+                                          .map((booking) => (
+                                            <div
+                                              key={booking.id}
+                                              className="border rounded-lg p-3 bg-white"
+                                            >
+                                              <div className="flex items-center justify-between mb-2">
+                                                <div className="text-sm font-medium">
+                                                  {booking.activity}
+                                                </div>
+                                                {getBookingStatusBadge(
+                                                  booking.status
+                                                )}
+                                              </div>
+                                              <div className="space-y-1 text-xs text-gray-600">
+                                                <div className="flex items-center gap-2">
+                                                  <Calendar className="h-3 w-3" />
+                                                  {new Date(
+                                                    booking.date
+                                                  ).toLocaleDateString()}
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                  <Clock className="h-3 w-3" />
+                                                  {booking.time} •{" "}
+                                                  {booking.duration}
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                  <MapPin className="h-3 w-3" />
+                                                  {booking.location}
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                  <Euro className="h-3 w-3" />€
+                                                  {booking.price}
+                                                </div>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        {customer.upcomingBookings.length >
+                                          2 && (
+                                          <div className="text-xs text-gray-500 text-center">
+                                            +
+                                            {customer.upcomingBookings.length -
+                                              2}{" "}
+                                            more upcoming
+                                          </div>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <div className="text-sm text-gray-500 text-center py-4">
+                                        No upcoming bookings
+                                      </div>
+                                    )}
+                                  </CardContent>
+                                </Card>
+
+                                <Card
+                                  className={`transition-all duration-300 ease-in-out ${
+                                    expandedCustomer === customer.id
+                                      ? "opacity-100 transform translate-y-0"
+                                      : "opacity-0 transform translate-y-2"
+                                  }`}
+                                  style={{
+                                    transitionDelay:
+                                      expandedCustomer === customer.id
+                                        ? "300ms"
+                                        : "0ms",
+                                  }}
+                                >
+                                  <CardHeader className="pb-3">
+                                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                                      <Waves className="h-4 w-4" />
+                                      Recent Activity
+                                    </CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                    <div className="space-y-3">
+                                      {customer.bookingHistory
+                                        .slice(0, 3)
+                                        .map((booking) => (
+                                          <div
+                                            key={booking.id}
+                                            className="border rounded-lg p-3 bg-white"
+                                          >
+                                            <div className="flex items-center justify-between mb-2">
+                                              <div className="text-sm font-medium">
+                                                {booking.activity}
+                                              </div>
+                                              {getBookingStatusBadge(
+                                                booking.status
+                                              )}
+                                            </div>
+                                            <div className="space-y-1 text-xs text-gray-600">
+                                              <div className="flex items-center gap-2">
+                                                <Calendar className="h-3 w-3" />
+                                                {new Date(
+                                                  booking.date
+                                                ).toLocaleDateString()}
+                                              </div>
+                                              <div className="flex items-center gap-2">
+                                                <MapPin className="h-3 w-3" />
+                                                {booking.location}
+                                              </div>
+                                              <div className="flex items-center gap-2">
+                                                <Euro className="h-3 w-3" />€
+                                                {booking.price}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      {customer.bookingHistory.length > 3 && (
+                                        <div className="text-xs text-gray-500 text-center">
+                                          +{customer.bookingHistory.length - 3}{" "}
+                                          more bookings
+                                        </div>
+                                      )}
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </div>
+
+                              {/* Action Buttons */}
+                              <div
+                                className={`flex gap-2 pt-4 border-t transition-all duration-300 ease-in-out ${
+                                  expandedCustomer === customer.id
+                                    ? "opacity-100 transform translate-y-0"
+                                    : "opacity-0 transform translate-y-2"
+                                }`}
+                                style={{
+                                  transitionDelay:
+                                    expandedCustomer === customer.id
+                                      ? "400ms"
+                                      : "0ms",
+                                }}
+                              >
+                                <Button size="sm" variant="default">
+                                  <Plus className="h-4 w-4 mr-2" />
+                                  New Booking
+                                </Button>
+                                <Button size="sm" variant="outline">
+                                  <Mail className="h-4 w-4 mr-2" />
+                                  Send Message
+                                </Button>
+                                <Button size="sm" variant="outline">
+                                  View Full History
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  </>
                 ))}
               </TableBody>
             </Table>

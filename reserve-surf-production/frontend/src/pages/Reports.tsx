@@ -16,10 +16,6 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
   Line,
   LineChart,
   Pie,
@@ -70,7 +66,6 @@ import {
   TrendingUp,
   Calendar as CalendarIcon,
   Download,
-  BarChart3,
   LineChart as LineChartIcon,
   Table as TableIcon,
   ChevronDown,
@@ -357,12 +352,6 @@ export default function Reports() {
                 <ToggleGroupItem value="line">
                   <LineChartIcon className="h-4 w-4" />
                 </ToggleGroupItem>
-                <ToggleGroupItem value="bar">
-                  <BarChart3 className="h-4 w-4" />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="area">
-                  <AreaChart className="h-4 w-4" />
-                </ToggleGroupItem>
                 <ToggleGroupItem value="table">
                   <TableIcon className="h-4 w-4" />
                 </ToggleGroupItem>
@@ -394,37 +383,6 @@ export default function Reports() {
                     />
                   )}
                 </LineChart>
-              </ChartContainer>
-            )}
-
-            {chartType === "bar" && (
-              <ChartContainer config={chartConfig} className="h-[400px] w-full">
-                <BarChart data={revenueData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="revenue" fill="var(--color-revenue)" />
-                </BarChart>
-              </ChartContainer>
-            )}
-
-            {chartType === "area" && (
-              <ChartContainer config={chartConfig} className="h-[400px] w-full">
-                <AreaChart data={revenueData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Area
-                    dataKey="revenue"
-                    type="monotone"
-                    fill="var(--color-revenue)"
-                    fillOpacity={0.3}
-                    stroke="var(--color-revenue)"
-                    strokeWidth={2}
-                  />
-                </AreaChart>
               </ChartContainer>
             )}
 
@@ -751,7 +709,7 @@ export default function Reports() {
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12">
-                  <BarChart3 className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                  <LineChartIcon className="h-16 w-16 mx-auto mb-4 opacity-50" />
                   <h3 className="text-lg font-medium mb-2">
                     Custom Report Builder
                   </h3>

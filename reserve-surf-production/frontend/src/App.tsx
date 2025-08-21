@@ -11,6 +11,9 @@ import CustomerCRM from "./pages/CustomerCRM";
 import StaffManagement from "./pages/StaffManagement";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import Weather from "./pages/Weather";
+import Equipment from "./pages/Equipment";
+import Pricing from "./pages/Pricing";
 import MobileCheckin from "./pages/MobileCheckin";
 import BusinessLanding from "./pages/BusinessLanding";
 import { ThemeDemo } from "./components/ThemeDemo";
@@ -41,6 +44,9 @@ function App() {
           <Route path="/operator/customers" element={<CustomerCRM />} />
           <Route path="/operator/staff" element={<StaffManagement />} />
           <Route path="/operator/reports" element={<Reports />} />
+          <Route path="/operator/pricing" element={<Pricing />} />
+          <Route path="/operator/weather" element={<Weather />} />
+          <Route path="/operator/equipment" element={<Equipment />} />
           <Route path="/operator/settings" element={<Settings />} />
           <Route path="/operator/checkin" element={<MobileCheckin />} />
         </Routes>

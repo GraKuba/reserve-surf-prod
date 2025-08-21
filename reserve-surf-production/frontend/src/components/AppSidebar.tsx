@@ -8,6 +8,9 @@ import {
   TrendingUp,
   Settings,
   Waves,
+  Cloud,
+  Wrench,
+  DollarSign,
 } from "lucide-react";
 
 import { NavMain } from "@/components/NavMain";
@@ -54,6 +57,21 @@ const navigationData = {
       title: "Reports",
       url: "/operator/reports",
       icon: TrendingUp,
+    },
+    {
+      title: "Pricing",
+      url: "/operator/pricing",
+      icon: DollarSign,
+    },
+    {
+      title: "Weather",
+      url: "/operator/weather",
+      icon: Cloud,
+    },
+    {
+      title: "Equipment",
+      url: "/operator/equipment",
+      icon: Wrench,
     },
     {
       title: "Settings",
