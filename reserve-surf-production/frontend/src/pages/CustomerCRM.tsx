@@ -18,6 +18,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import {
   Search,
@@ -29,19 +31,96 @@ import {
   Mail,
   Phone,
   Euro,
-  ChevronDown,
   ChevronRight,
   Calendar,
   Clock,
   MapPin,
   Waves,
+  Star,
+  Crown,
+  Award,
+  MessageSquare,
+  ThumbsUp,
 } from "lucide-react";
 
 export default function CustomerCRM() {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCustomer, setExpandedCustomer] = useState<number | null>(null);
 
-  // Mock customer data with booking history and upcoming bookings
+  // Current user's spot (this would come from auth context in real app)
+  const currentUserSpot = "Ericeira Beach";
+
+  // Customer skill level system
+  const skillLevels = {
+    beginner: {
+      name: "Beginner",
+      description: "Learning basic techniques",
+      color: "bg-green-100 text-green-800",
+      icon: Award,
+      minClasses: 0,
+      maxClasses: 5,
+    },
+    intermediate: {
+      name: "Intermediate",
+      description: "Comfortable with basics",
+      color: "bg-blue-100 text-blue-800",
+      icon: Star,
+      minClasses: 5,
+      maxClasses: 15,
+    },
+    advanced: {
+      name: "Advanced",
+      description: "Mastering advanced techniques",
+      color: "bg-purple-100 text-purple-800",
+      icon: Crown,
+      minClasses: 15,
+      maxClasses: 30,
+    },
+    expert: {
+      name: "Expert",
+      description: "Instructor level skills",
+      color: "bg-yellow-100 text-yellow-800",
+      icon: Crown,
+      minClasses: 30,
+      maxClasses: Infinity,
+    },
+  };
+
+  // Helper function to anonymize location
+  const anonymizeLocation = (location: string, isOwnSpot: boolean) => {
+    if (isOwnSpot) return location;
+    // Return general area instead of specific beach
+    if (location.includes("Ericeira")) return "North Coast";
+    if (location.includes("Cascais") || location.includes("Carcavelos"))
+      return "Lisbon Coast";
+    if (location.includes("Guincho")) return "West Coast";
+    if (location.includes("Costa da Caparica")) return "South Coast";
+    return "Portugal Coast";
+  };
+
+  // Helper function to simplify activity titles
+  const simplifyActivityTitle = (activity: string, isOwnSpot: boolean) => {
+    if (isOwnSpot) return activity;
+    if (activity.toLowerCase().includes("surf")) return "Surf Session";
+    if (
+      activity.toLowerCase().includes("board") ||
+      activity.toLowerCase().includes("rental")
+    )
+      return "Equipment Rental";
+    if (activity.toLowerCase().includes("coaching")) return "Coaching Session";
+    return "Water Sport";
+  };
+
+  // Helper function to format date to month/year
+  const formatMonthYear = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  // Mock customer data with booking history, upcoming bookings, levels, and feedback
   const customers = [
     {
       id: 1,
@@ -51,8 +130,31 @@ export default function CustomerCRM() {
       lastBooking: "2024-03-10",
       totalSpent: 450,
       totalBookings: 8,
-      status: "active",
       joinDate: "2023-05-15",
+      skillLevel: "intermediate",
+      totalClasses: 8,
+      skillProgress: 60, // 60% towards Advanced level
+      trainerFeedback: {
+        averageRating: 4.6,
+        totalFeedback: 8,
+        recentFeedback: [
+          {
+            rating: 5,
+            comment:
+              "Great improvement in wave reading! João shows excellent progress with paddle technique.",
+            trainer: "Carlos Silva",
+            date: "2024-03-10",
+            skills: ["Wave Reading", "Paddle Technique"],
+          },
+          {
+            rating: 4,
+            comment: "Good stance improvement, needs work on bottom turns.",
+            trainer: "Maria Santos",
+            date: "2024-02-28",
+            skills: ["Stance", "Bottom Turns"],
+          },
+        ],
+      },
       bookingHistory: [
         {
           id: 101,
@@ -106,8 +208,31 @@ export default function CustomerCRM() {
       lastBooking: "2024-03-15",
       totalSpent: 280,
       totalBookings: 4,
-      status: "active",
       joinDate: "2023-08-22",
+      skillLevel: "beginner",
+      totalClasses: 4,
+      skillProgress: 80, // 80% towards Intermediate level
+      trainerFeedback: {
+        averageRating: 4.2,
+        totalFeedback: 4,
+        recentFeedback: [
+          {
+            rating: 4,
+            comment:
+              "Maria is making good progress with basic stance. Needs more practice with pop-up timing.",
+            trainer: "Pedro Costa",
+            date: "2024-03-15",
+            skills: ["Basic Stance", "Pop-up Timing"],
+          },
+          {
+            rating: 5,
+            comment: "Excellent improvement in balance and confidence!",
+            trainer: "Ana Rodrigues",
+            date: "2024-03-01",
+            skills: ["Balance", "Confidence"],
+          },
+        ],
+      },
       bookingHistory: [
         {
           id: 104,
@@ -161,8 +286,32 @@ export default function CustomerCRM() {
       lastBooking: "2024-02-28",
       totalSpent: 125,
       totalBookings: 2,
-      status: "inactive",
       joinDate: "2024-01-10",
+      skillLevel: "beginner",
+      totalClasses: 2,
+      skillProgress: 40, // 40% towards Intermediate level
+      trainerFeedback: {
+        averageRating: 3.8,
+        totalFeedback: 2,
+        recentFeedback: [
+          {
+            rating: 4,
+            comment:
+              "Pedro shows good potential. Needs to work on wave selection and timing.",
+            trainer: "Carlos Silva",
+            date: "2024-02-28",
+            skills: ["Wave Selection", "Timing"],
+          },
+          {
+            rating: 3,
+            comment:
+              "Basic skills developing, needs more ocean time for confidence.",
+            trainer: "Maria Santos",
+            date: "2024-01-20",
+            skills: ["Basic Skills", "Ocean Confidence"],
+          },
+        ],
+      },
       bookingHistory: [
         {
           id: 106,
@@ -195,8 +344,40 @@ export default function CustomerCRM() {
       lastBooking: "2024-03-12",
       totalSpent: 680,
       totalBookings: 12,
-      status: "vip",
       joinDate: "2022-11-08",
+      skillLevel: "expert",
+      totalClasses: 25,
+      skillProgress: 100, // Max level reached
+      trainerFeedback: {
+        averageRating: 4.9,
+        totalFeedback: 25,
+        recentFeedback: [
+          {
+            rating: 5,
+            comment:
+              "Sofia demonstrates exceptional technique and could easily become an instructor. Her wave reading and positioning are outstanding.",
+            trainer: "Carlos Silva",
+            date: "2024-03-12",
+            skills: ["Wave Reading", "Positioning", "Advanced Technique"],
+          },
+          {
+            rating: 5,
+            comment:
+              "Perfect execution of advanced maneuvers. Sofia is ready for competition level surfing.",
+            trainer: "Pedro Costa",
+            date: "2024-03-05",
+            skills: ["Advanced Maneuvers", "Competition Ready"],
+          },
+          {
+            rating: 5,
+            comment:
+              "Instructor-level skills demonstrated. Sofia can now teach others.",
+            trainer: "Ana Rodrigues",
+            date: "2024-02-22",
+            skills: ["Teaching Ability", "Instructor Level"],
+          },
+        ],
+      },
       bookingHistory: [
         {
           id: 108,
@@ -254,17 +435,28 @@ export default function CustomerCRM() {
     },
   ];
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "active":
-        return <Badge variant="default">Active</Badge>;
-      case "inactive":
-        return <Badge variant="outline">Inactive</Badge>;
-      case "vip":
-        return <Badge className="bg-yellow-100 text-yellow-800">VIP</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
+  const getSkillLevelBadge = (skillLevel: string) => {
+    const levelInfo = skillLevels[skillLevel as keyof typeof skillLevels];
+    const IconComponent = levelInfo.icon;
+    return (
+      <Badge className={levelInfo.color}>
+        <IconComponent className="h-3 w-3 mr-1" />
+        {levelInfo.name}
+      </Badge>
+    );
+  };
+
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`h-3 w-3 ${
+          i < Math.floor(rating)
+            ? "text-yellow-400 fill-current"
+            : "text-gray-300"
+        }`}
+      />
+    ));
   };
 
   const getBookingStatusBadge = (status: string) => {
@@ -342,7 +534,7 @@ export default function CustomerCRM() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -364,13 +556,7 @@ export default function CustomerCRM() {
               <UserCheck className="h-4 w-4 text-gray-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {
-                  customers.filter(
-                    (c) => c.status === "active" || c.status === "vip"
-                  ).length
-                }
-              </div>
+              <div className="text-2xl font-bold">{customers.length}</div>
               <p className="text-xs text-gray-500">85% retention rate</p>
             </CardContent>
           </Card>
@@ -393,6 +579,42 @@ export default function CustomerCRM() {
               <p className="text-xs text-gray-500">per customer</p>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Average Trainer Rating
+              </CardTitle>
+              <Star className="h-4 w-4 text-gray-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-2">
+                <div className="text-2xl font-bold">
+                  {(
+                    customers.reduce(
+                      (acc, c) => acc + c.trainerFeedback.averageRating,
+                      0
+                    ) / customers.length
+                  ).toFixed(1)}
+                </div>
+                <div className="flex items-center gap-1">
+                  {renderStars(
+                    customers.reduce(
+                      (acc, c) => acc + c.trainerFeedback.averageRating,
+                      0
+                    ) / customers.length
+                  )}
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">
+                {customers.reduce(
+                  (acc, c) => acc + c.trainerFeedback.totalFeedback,
+                  0
+                )}{" "}
+                total trainer feedback
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Customer Table */}
@@ -407,9 +629,9 @@ export default function CustomerCRM() {
                   <TableHead className="w-8"></TableHead>
                   <TableHead>Customer</TableHead>
                   <TableHead>Contact</TableHead>
+                  <TableHead>Skill Level</TableHead>
                   <TableHead>Last Booking</TableHead>
                   <TableHead>Total Spent</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -467,8 +689,11 @@ export default function CustomerCRM() {
                         </div>
                       </TableCell>
                       <TableCell>
+                        {getSkillLevelBadge(customer.skillLevel)}
+                      </TableCell>
+                      <TableCell>
                         <div className="text-sm">
-                          {new Date(customer.lastBooking).toLocaleDateString()}
+                          {formatMonthYear(customer.lastBooking)}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -476,7 +701,6 @@ export default function CustomerCRM() {
                           €{customer.totalSpent}
                         </div>
                       </TableCell>
-                      <TableCell>{getStatusBadge(customer.status)}</TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -487,6 +711,12 @@ export default function CustomerCRM() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem>View Profile</DropdownMenuItem>
                             <DropdownMenuItem>Booking History</DropdownMenuItem>
+                            <DropdownMenuItem>
+                              View Trainer Feedback
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              Add Trainer Feedback
+                            </DropdownMenuItem>
                             <DropdownMenuItem>Send Message</DropdownMenuItem>
                             <DropdownMenuItem>Edit Customer</DropdownMenuItem>
                           </DropdownMenuContent>
@@ -496,242 +726,400 @@ export default function CustomerCRM() {
 
                     {/* Expanded Row */}
                     <TableRow>
-                      <TableCell colSpan={7} className="p-0">
+                      <TableCell colSpan={8} className="p-0">
                         <div
                           className={`overflow-hidden transition-all duration-300 ease-in-out ${
                             expandedCustomer === customer.id
-                              ? "max-h-[800px] opacity-100"
+                              ? "max-h-[1000px] opacity-100"
                               : "max-h-0 opacity-0"
                           }`}
                         >
                           <div className="bg-gray-50 border-t border-gray-200">
                             <div
-                              className={`p-6 space-y-6 transition-all duration-300 ease-in-out ${
+                              className={`p-4 transition-all duration-300 ease-in-out ${
                                 expandedCustomer === customer.id
                                   ? "transform translate-y-0"
                                   : "transform -translate-y-4"
                               }`}
                             >
-                              {/* Customer Details */}
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <Card
-                                  className={`transition-all duration-300 ease-in-out ${
-                                    expandedCustomer === customer.id
-                                      ? "opacity-100 transform translate-y-0"
-                                      : "opacity-0 transform translate-y-2"
-                                  }`}
-                                  style={{
-                                    transitionDelay:
-                                      expandedCustomer === customer.id
-                                        ? "100ms"
-                                        : "0ms",
-                                  }}
-                                >
-                                  <CardHeader className="pb-3">
-                                    <CardTitle className="text-sm font-medium flex items-center gap-2">
-                                      <Users className="h-4 w-4" />
-                                      Customer Details
-                                    </CardTitle>
-                                  </CardHeader>
-                                  <CardContent className="space-y-2">
-                                    <div className="text-sm">
-                                      <span className="font-medium">
-                                        Member since:
-                                      </span>{" "}
-                                      {new Date(
-                                        customer.joinDate
-                                      ).toLocaleDateString()}
+                              {/* Customer Header */}
+                              <div className="bg-white rounded-lg p-4 mb-4 border">
+                                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                                  <div className="flex items-center gap-4">
+                                    <Avatar className="h-12 w-12">
+                                      <AvatarFallback className="text-lg font-semibold">
+                                        {customer.name
+                                          .split(" ")
+                                          .map((n) => n[0])
+                                          .join("")}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div className="space-y-1">
+                                      <h3 className="text-lg font-semibold">
+                                        {customer.name}
+                                      </h3>
+                                      <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+                                        <span>
+                                          {getSkillLevelBadge(
+                                            customer.skillLevel
+                                          )}
+                                        </span>
+                                        <Separator
+                                          orientation="vertical"
+                                          className="h-4"
+                                        />
+                                        <span>
+                                          {customer.totalClasses} classes
+                                        </span>
+                                        <Separator
+                                          orientation="vertical"
+                                          className="h-4"
+                                        />
+                                        <span>
+                                          Member since{" "}
+                                          {formatMonthYear(customer.joinDate)}
+                                        </span>
+                                      </div>
                                     </div>
-                                    <div className="text-sm">
-                                      <span className="font-medium">
-                                        Total bookings:
-                                      </span>{" "}
-                                      {customer.totalBookings}
-                                    </div>
-                                    <div className="text-sm">
-                                      <span className="font-medium">
-                                        Total spent:
-                                      </span>{" "}
-                                      €{customer.totalSpent}
-                                    </div>
-                                    <div className="text-sm">
-                                      <span className="font-medium">
-                                        Status:
-                                      </span>{" "}
-                                      {getStatusBadge(customer.status)}
-                                    </div>
-                                  </CardContent>
-                                </Card>
+                                  </div>
+                                  <div className="flex flex-col sm:flex-row gap-2">
+                                    <Button size="sm" variant="default">
+                                      <Plus className="h-4 w-4 mr-2" />
+                                      New Booking
+                                    </Button>
+                                    <Button size="sm" variant="outline">
+                                      <Mail className="h-4 w-4 mr-2" />
+                                      Contact
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
 
-                                <Card
-                                  className={`transition-all duration-300 ease-in-out ${
-                                    expandedCustomer === customer.id
-                                      ? "opacity-100 transform translate-y-0"
-                                      : "opacity-0 transform translate-y-2"
-                                  }`}
-                                  style={{
-                                    transitionDelay:
-                                      expandedCustomer === customer.id
-                                        ? "200ms"
-                                        : "0ms",
-                                  }}
+                              {/* Tabbed Content */}
+                              <Tabs defaultValue="overview" className="w-full">
+                                <TabsList className="grid w-full grid-cols-3">
+                                  <TabsTrigger value="overview">
+                                    Overview
+                                  </TabsTrigger>
+                                  <TabsTrigger value="feedback">
+                                    Trainer Feedback
+                                  </TabsTrigger>
+                                  <TabsTrigger value="activity">
+                                    Activity
+                                  </TabsTrigger>
+                                </TabsList>
+
+                                <TabsContent
+                                  value="overview"
+                                  className="space-y-4 mt-4"
                                 >
-                                  <CardHeader className="pb-3">
-                                    <CardTitle className="text-sm font-medium flex items-center gap-2">
-                                      <Calendar className="h-4 w-4" />
-                                      Upcoming Bookings
-                                    </CardTitle>
-                                  </CardHeader>
-                                  <CardContent>
-                                    {customer.upcomingBookings.length > 0 ? (
+                                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                    {/* Upcoming Bookings - Priority 1 */}
+                                    <Card>
+                                      <CardHeader>
+                                        <CardTitle className="text-base flex items-center gap-2">
+                                          <Calendar className="h-5 w-5" />
+                                          Upcoming Bookings
+                                          {customer.upcomingBookings.length >
+                                            0 && (
+                                            <Badge
+                                              variant="secondary"
+                                              className="ml-auto"
+                                            >
+                                              {customer.upcomingBookings.length}
+                                            </Badge>
+                                          )}
+                                        </CardTitle>
+                                      </CardHeader>
+                                      <CardContent className="p-4">
+                                        {customer.upcomingBookings.length >
+                                        0 ? (
+                                          <div className="space-y-3">
+                                            {customer.upcomingBookings.map(
+                                              (booking) => (
+                                                <div
+                                                  key={booking.id}
+                                                  className="border rounded-lg p-3 bg-gray-50"
+                                                >
+                                                  <div className="flex items-center justify-between mb-2">
+                                                    <h4 className="font-medium">
+                                                      {simplifyActivityTitle(
+                                                        booking.activity,
+                                                        booking.location.includes(
+                                                          currentUserSpot
+                                                        )
+                                                      )}
+                                                    </h4>
+                                                    {getBookingStatusBadge(
+                                                      booking.status
+                                                    )}
+                                                  </div>
+                                                  <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                                                    <div className="flex items-center gap-2">
+                                                      <Calendar className="h-4 w-4" />
+                                                      {formatMonthYear(
+                                                        booking.date
+                                                      )}
+                                                    </div>
+                                                    {booking.location.includes(
+                                                      currentUserSpot
+                                                    ) && (
+                                                      <div className="flex items-center gap-2">
+                                                        <Clock className="h-4 w-4" />
+                                                        {booking.time}
+                                                      </div>
+                                                    )}
+                                                    <div className="flex items-center gap-2">
+                                                      <MapPin className="h-4 w-4" />
+                                                      {anonymizeLocation(
+                                                        booking.location,
+                                                        booking.location.includes(
+                                                          currentUserSpot
+                                                        )
+                                                      )}
+                                                    </div>
+                                                    {booking.location.includes(
+                                                      currentUserSpot
+                                                    ) && (
+                                                      <div className="flex items-center gap-2">
+                                                        <Euro className="h-4 w-4" />
+                                                        €{booking.price}
+                                                      </div>
+                                                    )}
+                                                  </div>
+                                                </div>
+                                              )
+                                            )}
+                                          </div>
+                                        ) : (
+                                          <div className="text-center py-8 text-gray-500">
+                                            <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                                            <p>No upcoming bookings</p>
+                                          </div>
+                                        )}
+                                      </CardContent>
+                                    </Card>
+
+                                    {/* Quick Stats */}
+                                    <Card>
+                                      <CardHeader>
+                                        <CardTitle className="text-base flex items-center gap-2">
+                                          <Users className="h-5 w-5" />
+                                          Quick Stats
+                                        </CardTitle>
+                                      </CardHeader>
+                                      <CardContent className="p-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                          <div className="text-center p-3 bg-blue-50 rounded-lg">
+                                            <div className="text-2xl font-bold text-blue-600">
+                                              {customer.totalClasses}
+                                            </div>
+                                            <div className="text-sm text-blue-600">
+                                              Total Classes
+                                            </div>
+                                          </div>
+                                          <div className="text-center p-3 bg-yellow-50 rounded-lg">
+                                            <div className="flex items-center justify-center gap-1">
+                                              {renderStars(
+                                                customer.trainerFeedback
+                                                  .averageRating
+                                              )}
+                                            </div>
+                                            <div className="text-sm text-yellow-600 mt-1">
+                                              Avg Rating
+                                            </div>
+                                          </div>
+                                          <div className="text-center p-3 bg-purple-50 rounded-lg">
+                                            <div className="text-2xl font-bold text-purple-600">
+                                              {customer.totalBookings}
+                                            </div>
+                                            <div className="text-sm text-purple-600">
+                                              Total Bookings
+                                            </div>
+                                          </div>
+                                          <div className="text-center p-3 bg-orange-50 rounded-lg">
+                                            <div className="text-lg font-bold text-orange-600">
+                                              {customer.skillProgress}%
+                                            </div>
+                                            <div className="text-sm text-orange-600">
+                                              Level Progress
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </CardContent>
+                                    </Card>
+                                  </div>
+                                </TabsContent>
+
+                                <TabsContent
+                                  value="feedback"
+                                  className="space-y-4 mt-4"
+                                >
+                                  <Card>
+                                    <CardHeader>
+                                      <div className="flex items-center justify-between">
+                                        <CardTitle className="text-base flex items-center gap-2">
+                                          <MessageSquare className="h-5 w-5" />
+                                          Trainer Feedback
+                                        </CardTitle>
+                                        <div className="flex items-center gap-2">
+                                          {renderStars(
+                                            customer.trainerFeedback
+                                              .averageRating
+                                          )}
+                                          <span className="font-semibold">
+                                            {
+                                              customer.trainerFeedback
+                                                .averageRating
+                                            }
+                                          </span>
+                                          <span className="text-sm text-gray-500">
+                                            (
+                                            {
+                                              customer.trainerFeedback
+                                                .totalFeedback
+                                            }{" "}
+                                            reviews)
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </CardHeader>
+                                    <CardContent className="p-4">
+                                      <div className="space-y-4">
+                                        {customer.trainerFeedback.recentFeedback.map(
+                                          (feedback, index) => (
+                                            <div
+                                              key={index}
+                                              className="border rounded-lg p-4 bg-gray-50"
+                                            >
+                                              <div className="flex items-center justify-between mb-3">
+                                                <div className="flex items-center gap-2">
+                                                  {renderStars(feedback.rating)}
+                                                  <span className="text-sm text-gray-500">
+                                                    by {feedback.trainer}
+                                                  </span>
+                                                </div>
+                                                <span className="text-sm text-gray-500">
+                                                  {formatMonthYear(
+                                                    feedback.date
+                                                  )}
+                                                </span>
+                                              </div>
+                                              <p className="text-gray-700 mb-3">
+                                                {feedback.comment}
+                                              </p>
+                                              <div className="flex flex-wrap gap-2">
+                                                {feedback.skills.map(
+                                                  (skill, skillIndex) => (
+                                                    <Badge
+                                                      key={skillIndex}
+                                                      variant="secondary"
+                                                      className="text-xs"
+                                                    >
+                                                      {skill}
+                                                    </Badge>
+                                                  )
+                                                )}
+                                              </div>
+                                            </div>
+                                          )
+                                        )}
+                                      </div>
+                                      <div className="flex gap-2 mt-4 pt-4 border-t">
+                                        <Button
+                                          size="sm"
+                                          variant="default"
+                                          className="flex-1"
+                                        >
+                                          <ThumbsUp className="h-4 w-4 mr-2" />
+                                          Add Feedback
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="flex-1"
+                                        >
+                                          <MessageSquare className="h-4 w-4 mr-2" />
+                                          View All
+                                        </Button>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </TabsContent>
+
+                                <TabsContent
+                                  value="activity"
+                                  className="space-y-4 mt-4"
+                                >
+                                  <Card>
+                                    <CardHeader>
+                                      <CardTitle className="text-base flex items-center gap-2">
+                                        <Waves className="h-5 w-5" />
+                                        Booking History
+                                      </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="p-4">
                                       <div className="space-y-3">
-                                        {customer.upcomingBookings
-                                          .slice(0, 2)
-                                          .map((booking) => (
+                                        {customer.bookingHistory.map(
+                                          (booking) => (
                                             <div
                                               key={booking.id}
-                                              className="border rounded-lg p-3 bg-white"
+                                              className="border rounded-lg p-3 bg-gray-50"
                                             >
                                               <div className="flex items-center justify-between mb-2">
-                                                <div className="text-sm font-medium">
-                                                  {booking.activity}
-                                                </div>
+                                                <h4 className="font-medium">
+                                                  {simplifyActivityTitle(
+                                                    booking.activity,
+                                                    booking.location.includes(
+                                                      currentUserSpot
+                                                    )
+                                                  )}
+                                                </h4>
                                                 {getBookingStatusBadge(
                                                   booking.status
                                                 )}
                                               </div>
-                                              <div className="space-y-1 text-xs text-gray-600">
+                                              <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
                                                 <div className="flex items-center gap-2">
-                                                  <Calendar className="h-3 w-3" />
-                                                  {new Date(
+                                                  <Calendar className="h-4 w-4" />
+                                                  {formatMonthYear(
                                                     booking.date
-                                                  ).toLocaleDateString()}
+                                                  )}
                                                 </div>
+                                                {booking.location.includes(
+                                                  currentUserSpot
+                                                ) && (
+                                                  <div className="flex items-center gap-2">
+                                                    <Clock className="h-4 w-4" />
+                                                    {booking.time}
+                                                  </div>
+                                                )}
                                                 <div className="flex items-center gap-2">
-                                                  <Clock className="h-3 w-3" />
-                                                  {booking.time} •{" "}
-                                                  {booking.duration}
+                                                  <MapPin className="h-4 w-4" />
+                                                  {anonymizeLocation(
+                                                    booking.location,
+                                                    booking.location.includes(
+                                                      currentUserSpot
+                                                    )
+                                                  )}
                                                 </div>
-                                                <div className="flex items-center gap-2">
-                                                  <MapPin className="h-3 w-3" />
-                                                  {booking.location}
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                  <Euro className="h-3 w-3" />€
-                                                  {booking.price}
-                                                </div>
+                                                {booking.location.includes(
+                                                  currentUserSpot
+                                                ) && (
+                                                  <div className="flex items-center gap-2">
+                                                    <Euro className="h-4 w-4" />
+                                                    €{booking.price}
+                                                  </div>
+                                                )}
                                               </div>
                                             </div>
-                                          ))}
-                                        {customer.upcomingBookings.length >
-                                          2 && (
-                                          <div className="text-xs text-gray-500 text-center">
-                                            +
-                                            {customer.upcomingBookings.length -
-                                              2}{" "}
-                                            more upcoming
-                                          </div>
+                                          )
                                         )}
                                       </div>
-                                    ) : (
-                                      <div className="text-sm text-gray-500 text-center py-4">
-                                        No upcoming bookings
-                                      </div>
-                                    )}
-                                  </CardContent>
-                                </Card>
-
-                                <Card
-                                  className={`transition-all duration-300 ease-in-out ${
-                                    expandedCustomer === customer.id
-                                      ? "opacity-100 transform translate-y-0"
-                                      : "opacity-0 transform translate-y-2"
-                                  }`}
-                                  style={{
-                                    transitionDelay:
-                                      expandedCustomer === customer.id
-                                        ? "300ms"
-                                        : "0ms",
-                                  }}
-                                >
-                                  <CardHeader className="pb-3">
-                                    <CardTitle className="text-sm font-medium flex items-center gap-2">
-                                      <Waves className="h-4 w-4" />
-                                      Recent Activity
-                                    </CardTitle>
-                                  </CardHeader>
-                                  <CardContent>
-                                    <div className="space-y-3">
-                                      {customer.bookingHistory
-                                        .slice(0, 3)
-                                        .map((booking) => (
-                                          <div
-                                            key={booking.id}
-                                            className="border rounded-lg p-3 bg-white"
-                                          >
-                                            <div className="flex items-center justify-between mb-2">
-                                              <div className="text-sm font-medium">
-                                                {booking.activity}
-                                              </div>
-                                              {getBookingStatusBadge(
-                                                booking.status
-                                              )}
-                                            </div>
-                                            <div className="space-y-1 text-xs text-gray-600">
-                                              <div className="flex items-center gap-2">
-                                                <Calendar className="h-3 w-3" />
-                                                {new Date(
-                                                  booking.date
-                                                ).toLocaleDateString()}
-                                              </div>
-                                              <div className="flex items-center gap-2">
-                                                <MapPin className="h-3 w-3" />
-                                                {booking.location}
-                                              </div>
-                                              <div className="flex items-center gap-2">
-                                                <Euro className="h-3 w-3" />€
-                                                {booking.price}
-                                              </div>
-                                            </div>
-                                          </div>
-                                        ))}
-                                      {customer.bookingHistory.length > 3 && (
-                                        <div className="text-xs text-gray-500 text-center">
-                                          +{customer.bookingHistory.length - 3}{" "}
-                                          more bookings
-                                        </div>
-                                      )}
-                                    </div>
-                                  </CardContent>
-                                </Card>
-                              </div>
-
-                              {/* Action Buttons */}
-                              <div
-                                className={`flex gap-2 pt-4 border-t transition-all duration-300 ease-in-out ${
-                                  expandedCustomer === customer.id
-                                    ? "opacity-100 transform translate-y-0"
-                                    : "opacity-0 transform translate-y-2"
-                                }`}
-                                style={{
-                                  transitionDelay:
-                                    expandedCustomer === customer.id
-                                      ? "400ms"
-                                      : "0ms",
-                                }}
-                              >
-                                <Button size="sm" variant="default">
-                                  <Plus className="h-4 w-4 mr-2" />
-                                  New Booking
-                                </Button>
-                                <Button size="sm" variant="outline">
-                                  <Mail className="h-4 w-4 mr-2" />
-                                  Send Message
-                                </Button>
-                                <Button size="sm" variant="outline">
-                                  View Full History
-                                </Button>
-                              </div>
+                                    </CardContent>
+                                  </Card>
+                                </TabsContent>
+                              </Tabs>
                             </div>
                           </div>
                         </div>

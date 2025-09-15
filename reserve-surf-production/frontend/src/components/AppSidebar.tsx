@@ -11,6 +11,7 @@ import {
   Cloud,
   Wrench,
   DollarSign,
+  Bell,
 } from "lucide-react";
 
 import { NavMain } from "@/components/NavMain";
@@ -72,6 +73,11 @@ const navigationData = {
       title: "Equipment",
       url: "/operator/equipment",
       icon: Wrench,
+    },
+    {
+      title: "Notifications",
+      url: "/operator/notifications",
+      icon: Bell,
     },
     {
       title: "Settings",

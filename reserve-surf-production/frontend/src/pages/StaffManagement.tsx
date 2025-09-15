@@ -5,6 +5,8 @@ interface StaffMember {
   id: number;
   name: string;
   role: string;
+  group: "trainer" | "coach" | "admin" | "assistant" | "management" | "support";
+  teams: string[];
   avatar: string;
   status: string;
   rating: number;
@@ -20,6 +22,8 @@ interface StaffMember {
   specialties: string[];
   joinDate: string;
   hourlyRate: number;
+  paymentType: "per_hour" | "per_lesson" | "per_day" | "monthly_salary";
+  paymentAmount: number;
 }
 
 interface SickLeaveRequest {
@@ -77,7 +81,6 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
 
 import {
   Dialog,
@@ -122,7 +125,6 @@ import {
   MoreVertical,
   Star,
   Calendar,
-  AlertTriangle,
   Grid3X3,
   List,
   User,
@@ -154,6 +156,44 @@ const getStatusColor = (status: string) => {
     default:
       return "outline";
   }
+};
+
+const getPaymentTypeLabel = (paymentType: string, amount: number) => {
+  switch (paymentType) {
+    case "per_hour":
+      return `€${amount}/hour`;
+    case "per_lesson":
+      return `€${amount}/lesson`;
+    case "per_day":
+      return `€${amount}/day`;
+    case "monthly_salary":
+      return `€${amount}/month`;
+    default:
+      return `€${amount}`;
+  }
+};
+
+const getGroupColor = (group: string) => {
+  switch (group) {
+    case "trainer":
+      return "default";
+    case "coach":
+      return "secondary";
+    case "admin":
+      return "destructive";
+    case "assistant":
+      return "outline";
+    case "management":
+      return "default";
+    case "support":
+      return "secondary";
+    default:
+      return "outline";
+  }
+};
+
+const getGroupLabel = (group: string) => {
+  return group.charAt(0).toUpperCase() + group.slice(1);
 };
 
 const getSickLeaveStatusColor = (status: string) => {
@@ -193,6 +233,8 @@ export default function StaffManagement() {
   const [showPayrollDetail, setShowPayrollDetail] = useState(false);
   const [selectedPayrollStaff, setSelectedPayrollStaff] =
     useState<PayrollStaff | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
   // Mock staff data
   const staffMembers = [
@@ -200,13 +242,15 @@ export default function StaffManagement() {
       id: 1,
       name: "Carlos Silva",
       role: "Senior Surf Instructor",
+      group: "trainer" as const,
+      teams: ["Surf Team", "Advanced Training"],
       avatar: "/avatars/carlos.jpg",
       status: "active",
       rating: 4.9,
       totalBookings: 342,
       revenue: 15680,
       hoursThisWeek: 32,
-      nextShift: "Tomorrow 08:00",
+      nextShift: "2024-01-19 08:00",
       phone: "+351 912 345 678",
       email: "carlos@reservesurf.com",
       location: "Ericeira, Portugal",
@@ -215,18 +259,22 @@ export default function StaffManagement() {
       specialties: ["Beginner Lessons", "Advanced Techniques", "Longboard"],
       joinDate: "2022-03-15",
       hourlyRate: 25,
+      paymentType: "per_lesson" as const,
+      paymentAmount: 45,
     },
     {
       id: 2,
       name: "Ana Costa",
       role: "Surf Instructor",
+      group: "coach" as const,
+      teams: ["Surf Team", "Kids Program"],
       avatar: "/avatars/ana.jpg",
       status: "active",
       rating: 4.8,
       totalBookings: 287,
       revenue: 12340,
       hoursThisWeek: 28,
-      nextShift: "Today 14:00",
+      nextShift: "2024-01-18 14:00",
       phone: "+351 913 456 789",
       email: "ana@reservesurf.com",
       location: "Ericeira, Portugal",
@@ -235,18 +283,22 @@ export default function StaffManagement() {
       specialties: ["Kids Classes", "Women's Groups", "Photography"],
       joinDate: "2023-01-10",
       hourlyRate: 22,
+      paymentType: "per_hour" as const,
+      paymentAmount: 22,
     },
     {
       id: 3,
       name: "Miguel Santos",
       role: "Kite Instructor",
+      group: "trainer" as const,
+      teams: ["Kite Team", "Equipment"],
       avatar: "/avatars/miguel.jpg",
       status: "break",
       rating: 4.7,
       totalBookings: 156,
       revenue: 8920,
       hoursThisWeek: 0,
-      nextShift: "Monday 10:00",
+      nextShift: "2024-01-22 10:00",
       phone: "+351 914 567 890",
       email: "miguel@reservesurf.com",
       location: "Ericeira, Portugal",
@@ -255,18 +307,22 @@ export default function StaffManagement() {
       specialties: ["Kite Surfing", "Wing Foiling", "Equipment Repair"],
       joinDate: "2021-06-20",
       hourlyRate: 30,
+      paymentType: "per_day" as const,
+      paymentAmount: 250,
     },
     {
       id: 4,
       name: "Sofia Alves",
       role: "Assistant & Photographer",
+      group: "assistant" as const,
+      teams: ["Support", "Marketing"],
       avatar: "/avatars/sofia.jpg",
       status: "active",
       rating: 4.6,
       totalBookings: 89,
       revenue: 3560,
       hoursThisWeek: 20,
-      nextShift: "Today 16:00",
+      nextShift: "2024-01-18 16:00",
       phone: "+351 915 678 901",
       email: "sofia@reservesurf.com",
       location: "Ericeira, Portugal",
@@ -275,21 +331,8 @@ export default function StaffManagement() {
       specialties: ["Photo Sessions", "Social Media", "Equipment Setup"],
       joinDate: "2023-09-01",
       hourlyRate: 15,
-    },
-  ];
-
-  const expiringCertifications = [
-    {
-      staff: "Carlos Silva",
-      cert: "Lifeguard",
-      expiryDate: "2024-02-15",
-      daysLeft: 28,
-    },
-    {
-      staff: "Miguel Santos",
-      cert: "Safety Rescue",
-      expiryDate: "2024-03-01",
-      daysLeft: 42,
+      paymentType: "monthly_salary" as const,
+      paymentAmount: 1800,
     },
   ];
 
@@ -588,6 +631,14 @@ export default function StaffManagement() {
 
   const availableMonths = Object.keys(payrollData).sort().reverse();
 
+  // Filter staff by group
+  const filteredStaffMembers = selectedGroup === "all" 
+    ? staffMembers 
+    : staffMembers.filter(staff => staff.group === selectedGroup);
+
+  // Get unique groups for filter
+  const uniqueGroups = Array.from(new Set(staffMembers.map(s => s.group)));
+
   return (
     <DashboardLayout
       pageTitle="Staff Management"
@@ -597,15 +648,32 @@ export default function StaffManagement() {
       <div className="space-y-6">
         {/* Staff Header */}
         <div className="flex items-center justify-between">
-          <Card className="px-4 py-2">
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">
-                {staffMembers.filter((s) => s.status === "active").length}{" "}
-                Active Staff
-              </span>
-            </div>
-          </Card>
+          <div className="flex items-center gap-4">
+            <Card className="px-4 py-2">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">
+                  {filteredStaffMembers.filter((s) => s.status === "active").length}{" "}
+                  Active Staff
+                </span>
+              </div>
+            </Card>
+            
+            {/* Group Filter */}
+            <Select value={selectedGroup} onValueChange={setSelectedGroup}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by group" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Groups</SelectItem>
+                {uniqueGroups.map((group) => (
+                  <SelectItem key={group} value={group}>
+                    {getGroupLabel(group)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <div className="flex items-center gap-2">
             <Dialog open={showStaffModal} onOpenChange={setShowStaffModal}>
@@ -645,62 +713,12 @@ export default function StaffManagement() {
           </div>
         </div>
 
-        {/* Certification Alerts */}
-        {expiringCertifications.length > 0 && (
-          <Alert className="border-none bg-transparent p-0">
-            <div className="flex items-center gap-2 mb-4">
-              <AlertTriangle className="h-5 w-5 text-amber-600" />
-              <AlertTitle className="text-gray-900 font-semibold text-lg">
-                Certification Alerts ({expiringCertifications.length})
-              </AlertTitle>
-            </div>
-            <AlertDescription>
-              <div className="flex flex-wrap gap-4">
-                {expiringCertifications.map((cert, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-4 bg-white border border-amber-200 rounded-lg shadow-sm flex-1 min-w-[320px]"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="flex-shrink-0">
-                        <div className="h-3 w-3 bg-amber-500 rounded-full"></div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="text-sm font-semibold text-gray-900">
-                          {cert.staff}
-                        </div>
-                        <div className="text-sm text-gray-700">{cert.cert}</div>
-                        <div className="text-xs text-gray-500">
-                          Expires {cert.expiryDate} • {cert.daysLeft} days left
-                        </div>
-                      </div>
-                    </div>
-                    <div className="ml-4 flex-shrink-0">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-amber-700 border-amber-300 hover:bg-amber-50"
-                      >
-                        Renew
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
-
         {/* Staff Views with Tabs */}
-        <Tabs defaultValue="grid" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="grid" className="flex items-center gap-2">
-              <Grid3X3 className="h-4 w-4" />
-              Grid View
-            </TabsTrigger>
-            <TabsTrigger value="list" className="flex items-center gap-2">
-              <List className="h-4 w-4" />
-              List View
+        <Tabs defaultValue="staff" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="staff" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Staff
             </TabsTrigger>
             <TabsTrigger value="schedule" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
@@ -716,280 +734,368 @@ export default function StaffManagement() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="grid" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {staffMembers.map((staff) => (
-                <Card
-                  key={staff.id}
-                  className="hover:shadow-lg transition-all duration-200 border-2 hover:border-primary/20"
-                >
-                  <CardHeader className="pb-4">
-                    <div className="flex items-start gap-4">
-                      <Avatar className="h-14 w-14 border-2">
-                        <AvatarImage src={staff.avatar} alt={staff.name} />
-                        <AvatarFallback className="text-lg font-semibold">
-                          {staff.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 space-y-2">
-                        <CardTitle className="text-lg">{staff.name}</CardTitle>
-                        <CardDescription className="text-sm">
-                          {staff.role}
-                        </CardDescription>
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            variant={
-                              getStatusColor(staff.status) as
-                                | "secondary"
-                                | "outline"
-                                | "destructive"
-                            }
-                            className="text-xs"
-                          >
-                            {staff.status}
-                          </Badge>
-                          <div className="flex items-center gap-1">
-                            {renderStars(staff.rating)}
-                            <span className="text-xs text-muted-foreground ml-1">
-                              {staff.rating}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+          <TabsContent value="staff" className="mt-6">
+            <div className="space-y-6">
+              {/* View Mode Toggle */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={viewMode === "list" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setViewMode("list")}
+                    className="flex items-center gap-2"
+                  >
+                    <List className="h-4 w-4" />
+                    List
+                  </Button>
+                  <Button
+                    variant={viewMode === "grid" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setViewMode("grid")}
+                    className="flex items-center gap-2"
+                  >
+                    <Grid3X3 className="h-4 w-4" />
+                    Grid
+                  </Button>
+                </div>
+              </div>
+
+              {/* List View */}
+              {viewMode === "list" && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Staff Directory</CardTitle>
+                    <CardDescription>
+                      Manage all staff members and their details
+                    </CardDescription>
                   </CardHeader>
-
-                  <Separator />
-
-                  <CardContent className="space-y-6 pt-6">
-                    {/* Qualifications */}
-                    <div className="space-y-3">
-                      <div className="text-sm font-semibold text-muted-foreground">
-                        Qualifications
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex flex-wrap gap-2">
-                          {staff.certifications
-                            .slice(0, 2)
-                            .map((cert, index) => (
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Staff Member</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead>Group</TableHead>
+                          <TableHead>Teams</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Payment</TableHead>
+                          <TableHead>Rating</TableHead>
+                          <TableHead></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredStaffMembers.map((staff) => (
+                          <TableRow key={staff.id}>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage
+                                    src={staff.avatar}
+                                    alt={staff.name}
+                                  />
+                                  <AvatarFallback>{staff.name[0]}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <div className="font-medium">{staff.name}</div>
+                                  <div className="text-sm text-muted-foreground">
+                                    {staff.email}
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>{staff.role}</TableCell>
+                            <TableCell>
                               <Badge
-                                key={index}
-                                variant="outline"
+                                variant={
+                                  getGroupColor(staff.group) as
+                                    | "default"
+                                    | "secondary"
+                                    | "outline"
+                                    | "destructive"
+                                }
+                              >
+                                {getGroupLabel(staff.group)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                {staff.teams.map((team, index) => (
+                                  <Badge
+                                    key={index}
+                                    variant="outline"
+                                    className="text-xs"
+                                  >
+                                    {team}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  getStatusColor(staff.status) as
+                                    | "secondary"
+                                    | "outline"
+                                    | "destructive"
+                                }
+                              >
+                                {staff.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <span className="text-sm font-medium">
+                                {getPaymentTypeLabel(staff.paymentType, staff.paymentAmount)}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-1">
+                                {renderStars(staff.rating)}
+                                <span className="text-sm ml-1">{staff.rating}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => setSelectedStaff(staff)}
+                              >
+                                View Profile
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Grid View */}
+              {viewMode === "grid" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                  {filteredStaffMembers.map((staff) => (
+                    <Card
+                      key={staff.id}
+                      className="hover:shadow-lg transition-all duration-200 border-2 hover:border-primary/20"
+                    >
+                      <CardHeader className="pb-4">
+                        <div className="flex items-start gap-4">
+                          <Avatar className="h-14 w-14 border-2">
+                            <AvatarImage src={staff.avatar} alt={staff.name} />
+                            <AvatarFallback className="text-lg font-semibold">
+                              {staff.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 space-y-2">
+                            <CardTitle className="text-lg">{staff.name}</CardTitle>
+                            <CardDescription className="text-sm">
+                              {staff.role}
+                            </CardDescription>
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                variant={
+                                  getGroupColor(staff.group) as
+                                    | "default"
+                                    | "secondary"
+                                    | "outline"
+                                    | "destructive"
+                                }
                                 className="text-xs"
                               >
-                                <Award className="h-3 w-3 mr-1" />
-                                {cert}
+                                {getGroupLabel(staff.group)}
+                              </Badge>
+                              <Badge
+                                variant={
+                                  getStatusColor(staff.status) as
+                                    | "secondary"
+                                    | "outline"
+                                    | "destructive"
+                                }
+                                className="text-xs"
+                              >
+                                {staff.status}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-1 mt-2">
+                              {renderStars(staff.rating)}
+                              <span className="text-xs text-muted-foreground ml-1">
+                                {staff.rating}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardHeader>
+
+                      <Separator />
+
+                      <CardContent className="space-y-6 pt-6">
+                        {/* Teams */}
+                        <div className="space-y-3">
+                          <div className="text-sm font-semibold text-muted-foreground">
+                            Teams
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {staff.teams.map((team, index) => (
+                              <Badge
+                                key={index}
+                                variant="secondary"
+                                className="text-xs"
+                              >
+                                {team}
                               </Badge>
                             ))}
-                          {staff.certifications.length > 2 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{staff.certifications.length - 2}
-                            </Badge>
-                          )}
+                          </div>
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          {staff.languages.slice(0, 2).map((lang, index) => (
+
+                        <Separator />
+
+                        {/* Qualifications */}
+                        <div className="space-y-3">
+                          <div className="text-sm font-semibold text-muted-foreground">
+                            Qualifications
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex flex-wrap gap-2">
+                              {staff.certifications
+                                .slice(0, 2)
+                                .map((cert, index) => (
+                                  <Badge
+                                    key={index}
+                                    variant="outline"
+                                    className="text-xs"
+                                  >
+                                    <Award className="h-3 w-3 mr-1" />
+                                    {cert}
+                                  </Badge>
+                                ))}
+                              {staff.certifications.length > 2 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{staff.certifications.length - 2}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {staff.languages.slice(0, 2).map((lang, index) => (
+                                <Badge
+                                  key={index}
+                                  variant="secondary"
+                                  className="text-xs"
+                                >
+                                  <Languages className="h-3 w-3 mr-1" />
+                                  {lang}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        <Separator />
+
+                        {/* Schedule Summary */}
+                        <div className="space-y-3">
+                          <div className="text-sm font-semibold text-muted-foreground">
+                            Schedule
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>Hours (Jan 15-21)</span>
+                              <span className="font-medium">
+                                {staff.hoursThisWeek}h
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span>Next shift</span>
+                              <span className="text-muted-foreground">
+                                {new Date(staff.nextShift).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}
+                              </span>
+                            </div>
                             <Badge
-                              key={index}
-                              variant="secondary"
-                              className="text-xs"
+                              variant="outline"
+                              className="text-xs w-full justify-center mt-2"
                             >
-                              <Languages className="h-3 w-3 mr-1" />
-                              {lang}
+                              Available
                             </Badge>
-                          ))}
+                          </div>
                         </div>
-                      </div>
-                    </div>
 
-                    <Separator />
+                        <Separator />
 
-                    {/* Schedule Summary */}
-                    <div className="space-y-3">
-                      <div className="text-sm font-semibold text-muted-foreground">
-                        This Week
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Hours worked</span>
-                          <span className="font-medium">
-                            {staff.hoursThisWeek}h
-                          </span>
+                        {/* Activity Summary */}
+                        <div className="space-y-3">
+                          <div className="text-sm font-semibold text-muted-foreground">
+                            Activity & Payment
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>Total sessions</span>
+                              <span className="font-medium">
+                                {staff.totalBookings}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span>Rating</span>
+                              <span className="font-medium">
+                                {staff.rating} / 5.0
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span>Payment</span>
+                              <span className="font-medium">
+                                {getPaymentTypeLabel(staff.paymentType, staff.paymentAmount)}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex justify-between text-sm">
-                          <span>Next shift</span>
-                          <span className="text-muted-foreground">
-                            {staff.nextShift}
-                          </span>
-                        </div>
-                        <Badge
-                          variant="outline"
-                          className="text-xs w-full justify-center mt-2"
-                        >
-                          Available
-                        </Badge>
-                      </div>
-                    </div>
+                      </CardContent>
 
-                    <Separator />
+                      <Separator />
 
-                    {/* Performance Metrics */}
-                    <div className="space-y-3">
-                      <div className="text-sm font-semibold text-muted-foreground">
-                        Performance
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Total bookings</span>
-                          <span className="font-medium">
-                            {staff.totalBookings}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span>Revenue generated</span>
-                          <span className="font-medium">
-                            €{staff.revenue.toLocaleString()}
-                          </span>
-                        </div>
-                        <Progress value={85} className="h-2 mt-3" />
-                      </div>
-                    </div>
-                  </CardContent>
-
-                  <Separator />
-
-                  <CardFooter className="pt-4">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="w-full">
-                          <MoreVertical className="h-4 w-4 mr-2" />
-                          Actions
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem
+                      <CardFooter className="pt-4">
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
                           onClick={() => setSelectedStaff(staff)}
                         >
                           View Profile
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>Message</DropdownMenuItem>
-                        <DropdownMenuItem>View Schedule</DropdownMenuItem>
-                        <DropdownMenuItem>Edit Details</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </CardFooter>
-                </Card>
-              ))}
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  ))}
 
-              {/* Add Staff Card */}
-              <Card className="border-dashed border-2 hover:border-solid transition-all cursor-pointer hover:shadow-lg">
-                <CardContent className="flex flex-col items-center justify-center h-full min-h-[500px] space-y-4">
-                  <Plus className="h-16 w-16 text-muted-foreground" />
-                  <div className="text-center space-y-2">
-                    <h3 className="text-lg font-medium">
-                      Add New Staff Member
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Expand your team
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    onClick={() => setShowStaffModal(true)}
-                  >
-                    Get Started
-                  </Button>
-                </CardContent>
-              </Card>
+                  {/* Add Staff Card */}
+                  <Card className="border-dashed border-2 hover:border-solid transition-all cursor-pointer hover:shadow-lg">
+                    <CardContent className="flex flex-col items-center justify-center h-full min-h-[500px] space-y-4">
+                      <Plus className="h-16 w-16 text-muted-foreground" />
+                      <div className="text-center space-y-2">
+                        <h3 className="text-lg font-medium">
+                          Add New Staff Member
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Expand your team
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        onClick={() => setShowStaffModal(true)}
+                      >
+                        Get Started
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
             </div>
-          </TabsContent>
-
-          <TabsContent value="list" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Staff Directory</CardTitle>
-                <CardDescription>
-                  Manage all staff members and their details
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Staff Member</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Rating</TableHead>
-                      <TableHead>This Week</TableHead>
-                      <TableHead>Revenue</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {staffMembers.map((staff) => (
-                      <TableRow key={staff.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage
-                                src={staff.avatar}
-                                alt={staff.name}
-                              />
-                              <AvatarFallback>{staff.name[0]}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <div className="font-medium">{staff.name}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {staff.email}
-                              </div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{staff.role}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              getStatusColor(staff.status) as
-                                | "secondary"
-                                | "outline"
-                                | "destructive"
-                            }
-                          >
-                            {staff.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            {renderStars(staff.rating)}
-                            <span className="text-sm ml-1">{staff.rating}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>{staff.hoursThisWeek}h</TableCell>
-                        <TableCell>€{staff.revenue.toLocaleString()}</TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                              <DropdownMenuItem>View Profile</DropdownMenuItem>
-                              <DropdownMenuItem>Edit</DropdownMenuItem>
-                              <DropdownMenuItem>Schedule</DropdownMenuItem>
-                              <DropdownMenuItem>Message</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
           </TabsContent>
 
           <TabsContent value="schedule" className="mt-6">
@@ -1007,8 +1113,10 @@ export default function StaffManagement() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="current-week">Current Week</SelectItem>
-                      <SelectItem value="next-week">Next Week</SelectItem>
+                      <SelectItem value="current-week">
+                        Jan 15-21, 2024
+                      </SelectItem>
+                      <SelectItem value="next-week">Jan 22-28, 2024</SelectItem>
                       <SelectItem value="custom">Custom Range</SelectItem>
                     </SelectContent>
                   </Select>
@@ -1077,7 +1185,6 @@ export default function StaffManagement() {
                         <TableHead>Type</TableHead>
                         <TableHead>Duration</TableHead>
                         <TableHead>Reason</TableHead>
-                        <TableHead>Status</TableHead>
                         <TableHead>Submitted</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
@@ -1125,29 +1232,6 @@ export default function StaffManagement() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge
-                              variant={
-                                getSickLeaveStatusColor(request.status) as
-                                  | "secondary"
-                                  | "outline"
-                                  | "destructive"
-                              }
-                            >
-                              <div className="flex items-center gap-1">
-                                {request.status === "approved" && (
-                                  <CheckCircle className="h-3 w-3" />
-                                )}
-                                {request.status === "pending" && (
-                                  <Clock className="h-3 w-3" />
-                                )}
-                                {request.status === "denied" && (
-                                  <XCircle className="h-3 w-3" />
-                                )}
-                                {request.status}
-                              </div>
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
                             <div className="text-sm text-muted-foreground">
                               {request.submittedDate}
                             </div>
@@ -1186,8 +1270,6 @@ export default function StaffManagement() {
 
           <TabsContent value="payroll" className="mt-6">
             <div className="space-y-6">
-
-
               {/* Month Selection and Payroll Details */}
               <Card>
                 <CardHeader>
@@ -1366,6 +1448,10 @@ export default function StaffManagement() {
                 >
                   Close
                 </Button>
+                <Button variant="outline">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Generate Payslip
+                </Button>
                 <Button>Edit Profile</Button>
               </DialogFooter>
             </DialogContent>
@@ -1461,17 +1547,29 @@ function StaffForm() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="role">Role</Label>
+            <Input id="role" placeholder="e.g., Senior Surf Instructor" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="group">Group</Label>
             <Select>
               <SelectTrigger>
-                <SelectValue placeholder="Select role" />
+                <SelectValue placeholder="Select group" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="surf-instructor">Surf Instructor</SelectItem>
-                <SelectItem value="kite-instructor">Kite Instructor</SelectItem>
+                <SelectItem value="trainer">Trainer</SelectItem>
+                <SelectItem value="coach">Coach</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
                 <SelectItem value="assistant">Assistant</SelectItem>
-                <SelectItem value="photographer">Photographer</SelectItem>
+                <SelectItem value="management">Management</SelectItem>
+                <SelectItem value="support">Support</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="teams">Teams</Label>
+            <Input id="teams" placeholder="e.g., Surf Team, Advanced Training (comma separated)" />
           </div>
         </div>
       </div>
@@ -1510,12 +1608,42 @@ function StaffForm() {
         </div>
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="hourly-rate">Hourly Rate (€)</Label>
-            <Input id="hourly-rate" type="number" placeholder="25" />
+            <Label htmlFor="payment-type">Payment Type</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select payment type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="per_hour">Per Hour</SelectItem>
+                <SelectItem value="per_lesson">Per Lesson</SelectItem>
+                <SelectItem value="per_day">Per Day</SelectItem>
+                <SelectItem value="monthly_salary">Monthly Salary</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="payment-amount">Payment Amount (€)</Label>
+            <Input id="payment-amount" type="number" placeholder="Enter amount" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="start-date">Start Date</Label>
             <Input id="start-date" type="date" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="contract-type">Contract Type</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select contract type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="full-time">Full Time</SelectItem>
+                <SelectItem value="part-time">Part Time</SelectItem>
+                <SelectItem value="freelance">Freelance</SelectItem>
+                <SelectItem value="seasonal">Seasonal</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
         <div className="space-y-2">
@@ -1529,12 +1657,27 @@ function StaffForm() {
 
 // Staff Detail View Component
 function StaffDetailView({ staff }: { staff: StaffMember }) {
+  const [transferAmount, setTransferAmount] = useState("");
+  const [transferNote, setTransferNote] = useState("");
+  const [showTransferSuccess, setShowTransferSuccess] = useState(false);
+
+  const handleQuickTransfer = () => {
+    // Mock transfer logic
+    setShowTransferSuccess(true);
+    setTimeout(() => {
+      setShowTransferSuccess(false);
+      setTransferAmount("");
+      setTransferNote("");
+    }, 3000);
+  };
+
   return (
     <Tabs defaultValue="personal" className="w-full">
-      <TabsList className="grid w-full grid-cols-4">
+      <TabsList className="grid w-full grid-cols-5">
         <TabsTrigger value="personal">Personal</TabsTrigger>
         <TabsTrigger value="qualifications">Qualifications</TabsTrigger>
         <TabsTrigger value="performance">Performance</TabsTrigger>
+        <TabsTrigger value="salary">Salary</TabsTrigger>
         <TabsTrigger value="schedule">Schedule</TabsTrigger>
       </TabsList>
 
@@ -1566,14 +1709,51 @@ function StaffDetailView({ staff }: { staff: StaffMember }) {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Group</span>
+                <Badge
+                  variant={
+                    getGroupColor(staff.group) as
+                      | "default"
+                      | "secondary"
+                      | "outline"
+                      | "destructive"
+                  }
+                >
+                  {getGroupLabel(staff.group)}
+                </Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Teams</span>
+                <div className="flex flex-wrap gap-1 justify-end">
+                  {staff.teams.map((team, index) => (
+                    <Badge
+                      key={index}
+                      variant="outline"
+                      className="text-xs"
+                    >
+                      {team}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <Separator />
+              <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Join Date</span>
                 <span className="text-sm">{staff.joinDate}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">
-                  Hourly Rate
+                  Payment Type
                 </span>
-                <span className="text-sm">€{staff.hourlyRate}</span>
+                <span className="text-sm">
+                  {staff.paymentType.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">
+                  Payment Amount
+                </span>
+                <span className="text-sm">€{staff.paymentAmount}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Status</span>
@@ -1649,25 +1829,14 @@ function StaffDetailView({ staff }: { staff: StaffMember }) {
       </TabsContent>
 
       <TabsContent value="performance" className="space-y-4">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm">Total Bookings</CardTitle>
+              <CardTitle className="text-sm">Total Sessions</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{staff.totalBookings}</div>
               <p className="text-xs text-muted-foreground">All time</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Revenue Generated</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                €{staff.revenue.toLocaleString()}
-              </div>
-              <p className="text-xs text-muted-foreground">Total earnings</p>
             </CardContent>
           </Card>
           <Card>
@@ -1685,10 +1854,165 @@ function StaffDetailView({ staff }: { staff: StaffMember }) {
         </div>
       </TabsContent>
 
+      <TabsContent value="salary" className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Payment Configuration</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Payment Type</span>
+                  <span className="text-sm font-medium">
+                    {staff.paymentType.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Base Rate</span>
+                  <span className="text-sm font-medium">
+                    {getPaymentTypeLabel(staff.paymentType, staff.paymentAmount)}
+                  </span>
+                </div>
+                <Separator />
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">This Month Earnings</span>
+                  <span className="text-sm font-medium">€3,850</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Pending Payment</span>
+                  <span className="text-sm font-medium text-green-600">€1,200</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Last Payment</span>
+                  <span className="text-sm">Jan 5, 2024</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Quick Money Transfer</CardTitle>
+              <CardDescription className="text-xs">
+                Send instant payment to staff member
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {showTransferSuccess && (
+                <Alert className="bg-green-50 border-green-200">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertTitle className="text-green-800">Transfer Successful</AlertTitle>
+                  <AlertDescription className="text-green-700">
+                    €{transferAmount} has been sent to {staff.name}
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              <div className="space-y-2">
+                <Label htmlFor="transfer-amount">Amount (€)</Label>
+                <Input 
+                  id="transfer-amount" 
+                  type="number" 
+                  placeholder="Enter amount"
+                  value={transferAmount}
+                  onChange={(e) => setTransferAmount(e.target.value)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="transfer-type">Transfer Type</Label>
+                <Select defaultValue="bonus">
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="salary">Salary Payment</SelectItem>
+                    <SelectItem value="bonus">Bonus</SelectItem>
+                    <SelectItem value="commission">Commission</SelectItem>
+                    <SelectItem value="reimbursement">Reimbursement</SelectItem>
+                    <SelectItem value="advance">Advance Payment</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="transfer-note">Note (Optional)</Label>
+                <Input 
+                  id="transfer-note" 
+                  placeholder="Add a note..."
+                  value={transferNote}
+                  onChange={(e) => setTransferNote(e.target.value)}
+                />
+              </div>
+              
+              <Button 
+                className="w-full" 
+                onClick={handleQuickTransfer}
+                disabled={!transferAmount || parseFloat(transferAmount) <= 0}
+              >
+                <DollarSign className="h-4 w-4 mr-2" />
+                Send Money
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Payment History</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                    <DollarSign className="h-4 w-4 text-green-600" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium">Salary Payment</div>
+                    <div className="text-xs text-muted-foreground">Jan 5, 2024</div>
+                  </div>
+                </div>
+                <div className="text-sm font-medium text-green-600">+€2,650</div>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                    <TrendingUp className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium">Performance Bonus</div>
+                    <div className="text-xs text-muted-foreground">Dec 28, 2023</div>
+                  </div>
+                </div>
+                <div className="text-sm font-medium text-green-600">+€200</div>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                    <DollarSign className="h-4 w-4 text-green-600" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium">December Salary</div>
+                    <div className="text-xs text-muted-foreground">Dec 5, 2023</div>
+                  </div>
+                </div>
+                <div className="text-sm font-medium text-green-600">+€2,450</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
       <TabsContent value="schedule" className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Current Week Schedule</CardTitle>
+            <CardTitle className="text-sm">
+              Schedule (Jan 15-21, 2024)
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center py-8">

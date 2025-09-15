@@ -31,7 +31,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -60,17 +59,24 @@ import {
   RefreshCw,
   Settings,
   Eye,
-  MapPin,
-  Layers,
-  Maximize2,
-  ZoomIn,
-  ZoomOut,
 } from "lucide-react";
 
 export default function OperatorDashboard() {
   const [selectedView, setSelectedView] = useState("day");
 
   const [showBookingModal, setShowBookingModal] = useState(false);
+
+  // Helper function to calculate end time from start time and duration
+  const calculateEndTime = (startTime: string, duration: number): string => {
+    const [hours, minutes] = startTime.split(":").map(Number);
+    const startMinutes = hours * 60 + minutes;
+    const endMinutes = startMinutes + duration * 60;
+    const endHours = Math.floor(endMinutes / 60);
+    const endMins = endMinutes % 60;
+    return `${endHours.toString().padStart(2, "0")}:${endMins
+      .toString()
+      .padStart(2, "0")}`;
+  };
 
   // Mock data for enhanced dashboard
   const todaysBookings = [
@@ -361,8 +367,9 @@ export default function OperatorDashboard() {
                       <div key={booking.id}>
                         <div className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
                           <div className="flex items-center gap-4">
-                            <div className="font-bold text-lg font-mono min-w-[4rem]">
-                              {booking.time}
+                            <div className="font-bold text-lg font-mono min-w-[8rem]">
+                              {booking.time} -{" "}
+                              {calculateEndTime(booking.time, booking.duration)}
                             </div>
                             <Avatar className="h-10 w-10">
                               <AvatarImage
@@ -531,7 +538,16 @@ export default function OperatorDashboard() {
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <OceanConditionsMap />
+                {/* Windy.com embedded forecast widget */}
+                <div className="w-full h-[250px] overflow-hidden">
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src={`https://embed.windy.com/embed2.html?lat=21.3099&lon=-157.8581&detailLat=21.3099&detailLon=-157.8581&width=400&height=250&zoom=11&level=surface&overlay=wind&product=ecmwf&menu=&message=&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1`}
+                    frameBorder="0"
+                    title="Ocean Conditions Forecast"
+                  />
+                </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-3">
                 <div className="flex items-center justify-between w-full text-sm">
@@ -544,9 +560,11 @@ export default function OperatorDashboard() {
                     <span>Waves: 2-3 ft</span>
                   </div>
                 </div>
-                <Button variant="outline" className="w-full">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Alert Configuration
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/operator/weather">
+                    <Eye className="h-4 w-4 mr-2" />
+                    View Full Weather
+                  </Link>
                 </Button>
               </CardFooter>
             </Card>
@@ -567,243 +585,6 @@ export default function OperatorDashboard() {
   );
 }
 
-// Ocean Conditions Map Component
-function OceanConditionsMap() {
-  const [selectedLayer, setSelectedLayer] = useState("wind");
-  const [mapZoom, setMapZoom] = useState(10);
-
-  // Mock wind/wave data points for visualization
-  const windData = [
-    { x: 20, y: 30, intensity: 8, direction: 45 },
-    { x: 40, y: 50, intensity: 12, direction: 60 },
-    { x: 60, y: 25, intensity: 6, direction: 30 },
-    { x: 80, y: 70, intensity: 15, direction: 90 },
-    { x: 30, y: 80, intensity: 10, direction: 120 },
-  ];
-
-  const waveData = [
-    { x: 25, y: 35, height: 2.5, period: 8 },
-    { x: 45, y: 55, height: 3.2, period: 10 },
-    { x: 65, y: 30, height: 1.8, period: 6 },
-    { x: 85, y: 75, height: 4.1, period: 12 },
-    { x: 35, y: 85, height: 2.9, period: 9 },
-  ];
-
-  const getWindColor = (intensity: number) => {
-    if (intensity < 5) return "rgb(34, 197, 94)"; // green
-    if (intensity < 10) return "rgb(59, 130, 246)"; // blue
-    if (intensity < 15) return "rgb(251, 191, 36)"; // yellow
-    return "rgb(239, 68, 68)"; // red
-  };
-
-  const getWaveColor = (height: number) => {
-    if (height < 2) return "rgb(34, 197, 94)"; // green
-    if (height < 3) return "rgb(59, 130, 246)"; // blue
-    if (height < 4) return "rgb(251, 191, 36)"; // yellow
-    return "rgb(239, 68, 68)"; // red
-  };
-
-  return (
-    <div className="relative">
-      {/* Map Container */}
-      <div className="relative h-[300px] bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 overflow-hidden">
-        {/* Coastline mockup */}
-        <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-yellow-200 to-transparent"></div>
-        <div className="absolute bottom-0 right-0 w-32 h-24 bg-gradient-to-tl from-yellow-200 to-transparent rounded-tl-3xl"></div>
-
-        {/* Wind Layer */}
-        {selectedLayer === "wind" && (
-          <>
-            {windData.map((point, index) => (
-              <div
-                key={`wind-${index}`}
-                className="absolute transform -translate-x-1/2 -translate-y-1/2 animate-pulse"
-                style={{
-                  left: `${point.x}%`,
-                  top: `${point.y}%`,
-                }}
-              >
-                {/* Wind arrow */}
-                <div
-                  className="w-6 h-6 flex items-center justify-center"
-                  style={{
-                    transform: `rotate(${point.direction}deg)`,
-                  }}
-                >
-                  <Wind
-                    className="w-4 h-4"
-                    style={{ color: getWindColor(point.intensity) }}
-                  />
-                </div>
-                {/* Wind speed label */}
-                <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs font-medium bg-white/80 px-1 rounded">
-                  {point.intensity}kt
-                </div>
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* Wave Layer */}
-        {selectedLayer === "waves" && (
-          <>
-            {waveData.map((point, index) => (
-              <div
-                key={`wave-${index}`}
-                className="absolute transform -translate-x-1/2 -translate-y-1/2"
-                style={{
-                  left: `${point.x}%`,
-                  top: `${point.y}%`,
-                }}
-              >
-                {/* Wave circle */}
-                <div
-                  className="w-8 h-8 rounded-full border-2 animate-ping"
-                  style={{
-                    borderColor: getWaveColor(point.height),
-                    backgroundColor: `${getWaveColor(point.height)}20`,
-                  }}
-                ></div>
-                {/* Wave height label */}
-                <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs font-medium bg-white/80 px-1 rounded">
-                  {point.height}ft
-                </div>
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* Temperature Layer */}
-        {selectedLayer === "temperature" && (
-          <div className="absolute inset-0 bg-gradient-to-br from-red-200/30 via-yellow-200/30 to-blue-200/30">
-            <div className="absolute top-4 left-4 bg-white/90 px-2 py-1 rounded text-sm font-medium">
-              22°C
-            </div>
-            <div className="absolute top-4 right-4 bg-white/90 px-2 py-1 rounded text-sm font-medium">
-              24°C
-            </div>
-            <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 bg-white/90 px-2 py-1 rounded text-sm font-medium">
-              23°C
-            </div>
-          </div>
-        )}
-
-        {/* Location marker for surf spot */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-          <MapPin className="w-6 h-6 text-red-500 drop-shadow-lg" />
-          <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs font-medium bg-white/90 px-2 py-1 rounded shadow">
-            Surf Spot
-          </div>
-        </div>
-      </div>
-
-      {/* Map Controls */}
-      <div className="absolute top-3 left-3 flex flex-col gap-1">
-        <Button variant="outline" size="sm" className="w-8 h-8 p-0 bg-white/90">
-          <ZoomIn className="w-4 h-4" />
-        </Button>
-        <Button variant="outline" size="sm" className="w-8 h-8 p-0 bg-white/90">
-          <ZoomOut className="w-4 h-4" />
-        </Button>
-        <Button variant="outline" size="sm" className="w-8 h-8 p-0 bg-white/90">
-          <Maximize2 className="w-4 h-4" />
-        </Button>
-      </div>
-
-      {/* Layer Controls */}
-      <div className="absolute top-3 right-3">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="bg-white/90">
-              <Layers className="w-4 h-4 mr-1" />
-              {selectedLayer}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setSelectedLayer("wind")}>
-              <Wind className="w-4 h-4 mr-2" />
-              Wind
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSelectedLayer("waves")}>
-              <Waves className="w-4 h-4 mr-2" />
-              Waves
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSelectedLayer("temperature")}>
-              <Activity className="w-4 h-4 mr-2" />
-              Temperature
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      {/* Time Controls */}
-      <div className="absolute bottom-3 left-3 right-3">
-        <div className="bg-white/90 rounded-lg p-2">
-          <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-            <span>Now</span>
-            <span>+6h</span>
-            <span>+12h</span>
-            <span>+24h</span>
-          </div>
-          <div className="relative">
-            <div className="h-1 bg-muted rounded-full"></div>
-            <div className="absolute top-0 left-0 w-1/4 h-1 bg-primary rounded-full"></div>
-            <div className="absolute top-1/2 left-1/4 w-3 h-3 bg-primary rounded-full transform -translate-y-1/2 -translate-x-1/2"></div>
-          </div>
-        </div>
-      </div>
-
-      {/* Legend */}
-      {selectedLayer === "wind" && (
-        <div className="absolute bottom-16 right-3 bg-white/90 rounded-lg p-2 text-xs">
-          <div className="font-medium mb-1">Wind Speed</div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span>0-5 kts</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-              <span>5-10 kts</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-              <span>10-15 kts</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <span>15+ kts</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {selectedLayer === "waves" && (
-        <div className="absolute bottom-16 right-3 bg-white/90 rounded-lg p-2 text-xs">
-          <div className="font-medium mb-1">Wave Height</div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span>0-2 ft</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-              <span>2-3 ft</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-              <span>3-4 ft</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <span>4+ ft</span>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 // Quick Booking Form Component
 function QuickBookingForm() {

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 import { Bell, Plus } from "lucide-react";
 
 import { AppSidebar } from "@/components/AppSidebar";
@@ -85,9 +85,11 @@ export function DashboardLayout({
           {/* Right side actions */}
           <div className="ml-auto flex items-center gap-2">
             {/* Notifications */}
-            <Button variant="ghost" size="icon">
-              <Bell className="h-4 w-4" />
-              <span className="sr-only">Notifications</span>
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/operator/notifications">
+                <Bell className="h-4 w-4" />
+                <span className="sr-only">Notifications</span>
+              </Link>
             </Button>
 
             {/* Quick Actions */}
@@ -102,7 +104,6 @@ export function DashboardLayout({
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem>New Booking</DropdownMenuItem>
                   <DropdownMenuItem>Add Customer</DropdownMenuItem>
-                  <DropdownMenuItem>Staff Check-in</DropdownMenuItem>
                   <DropdownMenuItem>Generate Report</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

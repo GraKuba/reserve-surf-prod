@@ -180,6 +180,18 @@ export default function CalendarView() {
     );
   };
 
+  // Get instructors without bookings for the selected day
+  const getUnbookedInstructors = () => {
+    return instructors.filter((instructor) => {
+      // Check if instructor has any bookings for any time slot
+      return !timeSlots.some((timeSlot) =>
+        getBookingForSlot(instructor.id, timeSlot)
+      );
+    });
+  };
+
+  const unbookedInstructors = getUnbookedInstructors();
+
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-US", {
       weekday: "long",
@@ -493,6 +505,71 @@ export default function CalendarView() {
                     {instructors.filter((i) => i.status === "active").length}
                   </Badge>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Unbooked Instructors */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Available Instructors
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Instructors without bookings today
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {unbookedInstructors.length > 0 ? (
+                  <div className="space-y-2">
+                    {unbookedInstructors.map((instructor) => (
+                      <div
+                        key={instructor.id}
+                        className="flex items-center gap-2 p-2 rounded-lg border border-muted/50 hover:bg-muted/30 transition-colors cursor-pointer"
+                        onClick={() => setShowBookingModal(true)}
+                      >
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage
+                            src={instructor.avatar}
+                            alt={instructor.name}
+                          />
+                          <AvatarFallback>{instructor.name[0]}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium truncate">
+                            {instructor.name}
+                          </div>
+                          <Badge
+                            variant={
+                              instructor.status === "active"
+                                ? "secondary"
+                                : "outline"
+                            }
+                            className="text-xs"
+                          >
+                            {instructor.status}
+                          </Badge>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <div className="text-sm text-muted-foreground">
+                      All instructors have bookings
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Great job! Everyone is scheduled.
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 

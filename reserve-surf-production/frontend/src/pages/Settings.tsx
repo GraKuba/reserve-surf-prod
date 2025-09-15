@@ -71,7 +71,6 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import {
   Building,
   Calendar as CalendarIcon,
-  CreditCard,
   Bell,
   Waves,
   Zap,
@@ -172,6 +171,273 @@ export default function Settings() {
     },
   ]);
 
+  // Role management state
+  const [isCreateRoleDialogOpen, setIsCreateRoleDialogOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<any>(null);
+  const [customRoles, setCustomRoles] = useState<any[]>([]);
+
+  // Default roles with predefined permissions
+  const defaultRoles = [
+    {
+      id: "admin",
+      name: "Admin",
+      description: "Full access to all features and settings",
+      isDefault: true,
+      permissions: [
+        "bookings.view",
+        "bookings.create",
+        "bookings.edit",
+        "bookings.delete",
+        "calendar.view",
+        "calendar.edit",
+        "customers.view",
+        "customers.create",
+        "customers.edit",
+        "customers.delete",
+        "staff.view",
+        "staff.create",
+        "staff.edit",
+        "staff.delete",
+        "reports.view",
+        "reports.export",
+        "settings.view",
+        "settings.edit",
+        "equipment.view",
+        "equipment.edit",
+        "pricing.view",
+        "pricing.edit",
+        "notifications.view",
+        "notifications.edit",
+      ],
+    },
+    {
+      id: "manager",
+      name: "Manager",
+      description: "Manage bookings, customers, and staff operations",
+      isDefault: true,
+      permissions: [
+        "bookings.view",
+        "bookings.create",
+        "bookings.edit",
+        "calendar.view",
+        "calendar.edit",
+        "customers.view",
+        "customers.create",
+        "customers.edit",
+        "staff.view",
+        "reports.view",
+        "equipment.view",
+        "equipment.edit",
+        "pricing.view",
+        "notifications.view",
+      ],
+    },
+    {
+      id: "instructor",
+      name: "Instructor",
+      description: "Access to bookings and customer information for teaching",
+      isDefault: true,
+      permissions: [
+        "bookings.view",
+        "bookings.edit",
+        "calendar.view",
+        "customers.view",
+        "equipment.view",
+        "notifications.view",
+      ],
+    },
+    {
+      id: "assistant",
+      name: "Assistant",
+      description: "Basic access to view bookings and customer information",
+      isDefault: true,
+      permissions: [
+        "bookings.view",
+        "calendar.view",
+        "customers.view",
+        "equipment.view",
+      ],
+    },
+  ];
+
+  // Permission categories for the permission matrix
+  const permissionCategories = [
+    {
+      name: "Bookings",
+      icon: CalendarIcon,
+      permissions: [
+        {
+          key: "bookings.view",
+          name: "View Bookings",
+          description: "View all booking information",
+        },
+        {
+          key: "bookings.create",
+          name: "Create Bookings",
+          description: "Create new bookings for customers",
+        },
+        {
+          key: "bookings.edit",
+          name: "Edit Bookings",
+          description: "Modify existing booking details",
+        },
+        {
+          key: "bookings.delete",
+          name: "Delete Bookings",
+          description: "Cancel and delete bookings",
+        },
+      ],
+    },
+    {
+      name: "Calendar",
+      icon: CalendarIcon,
+      permissions: [
+        {
+          key: "calendar.view",
+          name: "View Calendar",
+          description: "Access calendar and scheduling views",
+        },
+        {
+          key: "calendar.edit",
+          name: "Edit Calendar",
+          description: "Modify calendar events and availability",
+        },
+      ],
+    },
+    {
+      name: "Customers",
+      icon: Users,
+      permissions: [
+        {
+          key: "customers.view",
+          name: "View Customers",
+          description: "Access customer profiles and information",
+        },
+        {
+          key: "customers.create",
+          name: "Create Customers",
+          description: "Add new customer profiles",
+        },
+        {
+          key: "customers.edit",
+          name: "Edit Customers",
+          description: "Modify customer information",
+        },
+        {
+          key: "customers.delete",
+          name: "Delete Customers",
+          description: "Remove customer profiles",
+        },
+      ],
+    },
+    {
+      name: "Staff Management",
+      icon: Users,
+      permissions: [
+        {
+          key: "staff.view",
+          name: "View Staff",
+          description: "View team member information",
+        },
+        {
+          key: "staff.create",
+          name: "Create Staff",
+          description: "Add new team members",
+        },
+        {
+          key: "staff.edit",
+          name: "Edit Staff",
+          description: "Modify staff information and roles",
+        },
+        {
+          key: "staff.delete",
+          name: "Delete Staff",
+          description: "Remove team members",
+        },
+      ],
+    },
+    {
+      name: "Reports",
+      icon: Database,
+      permissions: [
+        {
+          key: "reports.view",
+          name: "View Reports",
+          description: "Access business reports and analytics",
+        },
+        {
+          key: "reports.export",
+          name: "Export Reports",
+          description: "Download and export report data",
+        },
+      ],
+    },
+    {
+      name: "Settings",
+      icon: Shield,
+      permissions: [
+        {
+          key: "settings.view",
+          name: "View Settings",
+          description: "Access system settings",
+        },
+        {
+          key: "settings.edit",
+          name: "Edit Settings",
+          description: "Modify system configuration",
+        },
+      ],
+    },
+    {
+      name: "Equipment",
+      icon: Database,
+      permissions: [
+        {
+          key: "equipment.view",
+          name: "View Equipment",
+          description: "View equipment inventory",
+        },
+        {
+          key: "equipment.edit",
+          name: "Edit Equipment",
+          description: "Manage equipment inventory",
+        },
+      ],
+    },
+    {
+      name: "Pricing",
+      icon: Tag,
+      permissions: [
+        {
+          key: "pricing.view",
+          name: "View Pricing",
+          description: "View pricing information",
+        },
+        {
+          key: "pricing.edit",
+          name: "Edit Pricing",
+          description: "Modify pricing and promo codes",
+        },
+      ],
+    },
+    {
+      name: "Notifications",
+      icon: Bell,
+      permissions: [
+        {
+          key: "notifications.view",
+          name: "View Notifications",
+          description: "Access notification settings",
+        },
+        {
+          key: "notifications.edit",
+          name: "Edit Notifications",
+          description: "Configure notification templates",
+        },
+      ],
+    },
+  ];
+
   // Mock settings data
   const businessProfile = {
     name: "ReserveSurf Ericeira",
@@ -194,8 +460,9 @@ export default function Settings() {
     { day: "Sunday", open: "07:00", close: "19:00", enabled: true },
   ];
 
-  const activityTypes = [
+  const [activityTypes, setActivityTypes] = useState([
     {
+      id: 1,
       name: "Surf Lessons",
       duration: [1, 2, 3],
       pricing: [30, 45, 65],
@@ -203,6 +470,7 @@ export default function Settings() {
       enabled: true,
     },
     {
+      id: 2,
       name: "Kite Lessons",
       duration: [2, 3, 4],
       pricing: [50, 75, 100],
@@ -210,6 +478,7 @@ export default function Settings() {
       enabled: true,
     },
     {
+      id: 3,
       name: "SUP Lessons",
       duration: [1, 2],
       pricing: [25, 40],
@@ -217,46 +486,25 @@ export default function Settings() {
       enabled: true,
     },
     {
+      id: 4,
       name: "Photography Session",
       duration: [1, 2],
       pricing: [50, 80],
       capacity: 2,
       enabled: false,
     },
-  ];
+  ]);
 
-  const integrations = [
-    {
-      name: "Stripe",
-      type: "Payment",
-      status: "connected",
-      description: "Process credit card payments",
-    },
-    {
-      name: "Google Calendar",
-      type: "Calendar",
-      status: "connected",
-      description: "Sync bookings with calendar",
-    },
-    {
-      name: "Mailchimp",
-      type: "Email",
-      status: "disconnected",
-      description: "Email marketing automation",
-    },
-    {
-      name: "QuickBooks",
-      type: "Accounting",
-      status: "disconnected",
-      description: "Automated bookkeeping",
-    },
-    {
-      name: "Zapier",
-      type: "Automation",
-      status: "connected",
-      description: "Connect with 3000+ apps",
-    },
-  ];
+  const [cancellationPolicy, setCancellationPolicy] = useState(
+    "Free cancellation up to 24 hours before the lesson. Cancellations within 24 hours are subject to a 50% fee."
+  );
+
+  const googleCalendarIntegration = {
+    name: "Google Calendar",
+    type: "Calendar",
+    status: "connected",
+    description: "Sync bookings with calendar",
+  };
 
   const teamMembers = [
     {
@@ -433,6 +681,131 @@ export default function Settings() {
     navigator.clipboard.writeText(code);
   };
 
+  // Role management handlers
+  const handleCreateCustomRole = (roleData: {
+    name: string;
+    description: string;
+  }) => {
+    const newRole = {
+      id: `custom-${Date.now()}`,
+      name: roleData.name,
+      description: roleData.description,
+      isDefault: false,
+      permissions: [], // Start with no permissions
+    };
+    setCustomRoles([...customRoles, newRole]);
+    setIsCreateRoleDialogOpen(false);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleDeleteCustomRole = (roleId: string) => {
+    setCustomRoles(customRoles.filter((role) => role.id !== roleId));
+    setHasUnsavedChanges(true);
+  };
+
+  const handlePermissionToggle = (
+    roleId: string,
+    permissionKey: string,
+    checked: boolean
+  ) => {
+    setCustomRoles(
+      customRoles.map((role) => {
+        if (role.id === roleId) {
+          const newPermissions = checked
+            ? [...role.permissions, permissionKey]
+            : role.permissions.filter((p: string) => p !== permissionKey);
+          return { ...role, permissions: newPermissions };
+        }
+        return role;
+      })
+    );
+    setHasUnsavedChanges(true);
+  };
+
+  const handleSaveRole = () => {
+    setSelectedRole(null);
+    // The permissions are already updated via handlePermissionToggle
+  };
+
+  const handleMemberRoleChange = () => {
+    // This would update the team member's role
+    // For now, just trigger unsaved changes
+    setHasUnsavedChanges(true);
+  };
+
+  // Activity type management functions
+  const addActivityType = () => {
+    const newActivity = {
+      id: Math.max(...activityTypes.map((a) => a.id)) + 1,
+      name: "New Activity",
+      duration: [1],
+      pricing: [30],
+      capacity: 4,
+      enabled: true,
+    };
+    setActivityTypes([...activityTypes, newActivity]);
+    setHasUnsavedChanges(true);
+  };
+
+  const updateActivityType = (
+    id: number,
+    updates: Partial<(typeof activityTypes)[0]>
+  ) => {
+    setActivityTypes(
+      activityTypes.map((activity) =>
+        activity.id === id ? { ...activity, ...updates } : activity
+      )
+    );
+    setHasUnsavedChanges(true);
+  };
+
+  const removeActivityType = (id: number) => {
+    setActivityTypes(activityTypes.filter((activity) => activity.id !== id));
+    setHasUnsavedChanges(true);
+  };
+
+  const addDurationOption = (activityId: number) => {
+    const activity = activityTypes.find((a) => a.id === activityId);
+    if (activity) {
+      const newDuration = Math.max(...activity.duration) + 1;
+      const newPricing = activity.pricing[activity.pricing.length - 1] + 10;
+      updateActivityType(activityId, {
+        duration: [...activity.duration, newDuration],
+        pricing: [...activity.pricing, newPricing],
+      });
+    }
+  };
+
+  const removeDurationOption = (activityId: number, index: number) => {
+    const activity = activityTypes.find((a) => a.id === activityId);
+    if (activity && activity.duration.length > 1) {
+      const newDuration = activity.duration.filter((_, i) => i !== index);
+      const newPricing = activity.pricing.filter((_, i) => i !== index);
+      updateActivityType(activityId, {
+        duration: newDuration,
+        pricing: newPricing,
+      });
+    }
+  };
+
+  const updateDurationOption = (
+    activityId: number,
+    index: number,
+    value: number,
+    type: "duration" | "pricing"
+  ) => {
+    const activity = activityTypes.find((a) => a.id === activityId);
+    if (activity) {
+      const newArray = [
+        ...(type === "duration" ? activity.duration : activity.pricing),
+      ];
+      newArray[index] = value;
+      updateActivityType(activityId, {
+        [type]: newArray,
+      });
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "connected":
@@ -455,7 +828,7 @@ export default function Settings() {
       <div className="space-y-6">
         <Tabs defaultValue="business" className="w-full">
           <div className="flex items-center justify-between">
-            <TabsList className="grid w-full grid-cols-7 lg:w-fit">
+            <TabsList className="grid w-full grid-cols-6 lg:w-fit">
               <TabsTrigger value="business">
                 <Building className="h-4 w-4 mr-2" />
                 Business
@@ -463,10 +836,6 @@ export default function Settings() {
               <TabsTrigger value="bookings">
                 <CalendarIcon className="h-4 w-4 mr-2" />
                 Bookings
-              </TabsTrigger>
-              <TabsTrigger value="payments">
-                <CreditCard className="h-4 w-4 mr-2" />
-                Payments
               </TabsTrigger>
               <TabsTrigger value="promo">
                 <Tag className="h-4 w-4 mr-2" />
@@ -482,7 +851,7 @@ export default function Settings() {
               </TabsTrigger>
               <TabsTrigger value="team">
                 <Users className="h-4 w-4 mr-2" />
-                Team
+                Permission
               </TabsTrigger>
             </TabsList>
           </div>
@@ -859,68 +1228,175 @@ export default function Settings() {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-6">
-                    {activityTypes.map((activity, index) => (
-                      <Card key={index}>
-                        <CardContent className="pt-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold">
+                          Activity Types
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Manage your activity types, pricing, and capacity
+                          settings
+                        </p>
+                      </div>
+                      <Button onClick={addActivityType} size="sm">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Activity
+                      </Button>
+                    </div>
+
+                    {activityTypes.map((activity) => (
+                      <Card key={activity.id}>
+                        <CardContent className="pt-6 space-y-6">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                              <Switch defaultChecked={activity.enabled} />
-                              <h4 className="font-semibold text-lg">
-                                {activity.name}
-                              </h4>
+                              <Switch
+                                checked={activity.enabled}
+                                onCheckedChange={(checked) =>
+                                  updateActivityType(activity.id, {
+                                    enabled: checked,
+                                  })
+                                }
+                              />
+                              <Input
+                                value={activity.name}
+                                onChange={(e) =>
+                                  updateActivityType(activity.id, {
+                                    name: e.target.value,
+                                  })
+                                }
+                                className="font-semibold text-lg border-none p-0 h-auto focus-visible:ring-0"
+                                placeholder="Activity name"
+                              />
                             </div>
-                            <Badge
-                              variant={
-                                activity.enabled ? "secondary" : "outline"
-                              }
-                            >
-                              {activity.enabled ? "Active" : "Disabled"}
-                            </Badge>
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                variant={
+                                  activity.enabled ? "secondary" : "outline"
+                                }
+                              >
+                                {activity.enabled ? "Active" : "Disabled"}
+                              </Badge>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeActivityType(activity.id)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
 
                           <Separator />
 
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="space-y-3">
-                              <Label className="text-sm font-semibold">
-                                Duration Options (hours)
-                              </Label>
-                              <div className="flex flex-wrap gap-2">
-                                {activity.duration.map((dur, i) => (
-                                  <Badge
-                                    key={i}
-                                    variant="outline"
-                                    className="text-sm"
+                          <div className="space-y-6">
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <Label className="text-sm font-semibold">
+                                  Duration & Pricing Options
+                                </Label>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => addDurationOption(activity.id)}
+                                >
+                                  <Plus className="h-4 w-4 mr-2" />
+                                  Add Option
+                                </Button>
+                              </div>
+                              <div className="space-y-3">
+                                {activity.duration.map((dur, index) => (
+                                  <div
+                                    key={index}
+                                    className="flex items-center gap-4 p-3 border rounded-lg"
                                   >
-                                    {dur}h
-                                  </Badge>
+                                    <div className="flex items-center gap-2">
+                                      <Label className="text-sm font-medium">
+                                        Duration:
+                                      </Label>
+                                      <Input
+                                        type="number"
+                                        value={dur}
+                                        onChange={(e) =>
+                                          updateDurationOption(
+                                            activity.id,
+                                            index,
+                                            Number(e.target.value),
+                                            "duration"
+                                          )
+                                        }
+                                        className="w-20"
+                                        min="0.5"
+                                        step="0.5"
+                                      />
+                                      <span className="text-sm text-muted-foreground">
+                                        hours
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Label className="text-sm font-medium">
+                                        Price:
+                                      </Label>
+                                      <Input
+                                        type="number"
+                                        value={activity.pricing[index]}
+                                        onChange={(e) =>
+                                          updateDurationOption(
+                                            activity.id,
+                                            index,
+                                            Number(e.target.value),
+                                            "pricing"
+                                          )
+                                        }
+                                        className="w-24"
+                                        min="0"
+                                        step="0.01"
+                                      />
+                                      <span className="text-sm text-muted-foreground">
+                                        €
+                                      </span>
+                                    </div>
+                                    {activity.duration.length > 1 && (
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() =>
+                                          removeDurationOption(
+                                            activity.id,
+                                            index
+                                          )
+                                        }
+                                        className="text-destructive hover:text-destructive"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    )}
+                                  </div>
                                 ))}
                               </div>
                             </div>
+
                             <div className="space-y-3">
                               <Label className="text-sm font-semibold">
-                                Pricing (€)
+                                Maximum Capacity
                               </Label>
-                              <div className="flex flex-wrap gap-2">
-                                {activity.pricing.map((price, i) => (
-                                  <Badge
-                                    key={i}
-                                    variant="outline"
-                                    className="text-sm"
-                                  >
-                                    €{price}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                            <div className="space-y-3">
-                              <Label className="text-sm font-semibold">
-                                Max Capacity
-                              </Label>
-                              <div>
-                                <Badge variant="outline" className="text-sm">
-                                  {activity.capacity} people
-                                </Badge>
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  type="number"
+                                  value={activity.capacity}
+                                  onChange={(e) =>
+                                    updateActivityType(activity.id, {
+                                      capacity: Number(e.target.value),
+                                    })
+                                  }
+                                  className="w-24"
+                                  min="1"
+                                />
+                                <span className="text-sm text-muted-foreground">
+                                  people per session
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -931,69 +1407,30 @@ export default function Settings() {
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="availability">
+              <AccordionItem value="cancellation">
                 <AccordionTrigger>
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    Availability Rules
+                    <XCircle className="h-4 w-4" />
+                    Cancellation Policy
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="space-y-8">
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-semibold flex items-center gap-2">
-                        <Clock className="h-5 w-5" />
-                        Booking Timing Rules
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="space-y-2">
-                          <Label htmlFor="advance-booking">
-                            Advance Booking Limit (days)
-                          </Label>
-                          <Input
-                            id="advance-booking"
-                            type="number"
-                            defaultValue="30"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="buffer-time">
-                            Buffer Time Between Bookings (minutes)
-                          </Label>
-                          <Input
-                            id="buffer-time"
-                            type="number"
-                            defaultValue="15"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="min-notice">
-                            Minimum Booking Notice (hours)
-                          </Label>
-                          <Input
-                            id="min-notice"
-                            type="number"
-                            defaultValue="2"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-semibold flex items-center gap-2">
-                        <XCircle className="h-5 w-5" />
-                        Cancellation Policy
-                      </h4>
-                      <div className="space-y-2">
-                        <Label>Policy Details</Label>
-                        <Textarea
-                          placeholder="Enter your cancellation policy..."
-                          rows={4}
-                          defaultValue="Free cancellation up to 24 hours before the lesson. Cancellations within 24 hours are subject to a 50% fee."
-                        />
-                      </div>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Policy Details</Label>
+                      <Textarea
+                        placeholder="Enter your cancellation policy..."
+                        rows={4}
+                        value={cancellationPolicy}
+                        onChange={(e) => {
+                          setCancellationPolicy(e.target.value);
+                          setHasUnsavedChanges(true);
+                        }}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        This policy will be displayed to customers during
+                        booking and in confirmation emails.
+                      </p>
                     </div>
                   </div>
                 </AccordionContent>
@@ -1016,193 +1453,6 @@ export default function Settings() {
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
-          </TabsContent>
-
-          {/* Payment Settings */}
-          <TabsContent value="payments" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Payment Distribution</CardTitle>
-                <CardDescription>
-                  Configure how payments are distributed to staff and trainers
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Trainer & Staff Payments
-                  </h4>
-                  <p className="text-sm text-muted-foreground">
-                    Set the percentage or fixed amount that trainers and staff
-                    receive from each booking
-                  </p>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="trainer-percentage">
-                          Lead Trainer Percentage (%)
-                        </Label>
-                        <Input
-                          id="trainer-percentage"
-                          type="number"
-                          defaultValue="60"
-                          min="0"
-                          max="100"
-                          onChange={handleInputChange}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Percentage of lesson fee paid to the lead trainer
-                        </p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="assistant-percentage">
-                          Assistant Trainer Percentage (%)
-                        </Label>
-                        <Input
-                          id="assistant-percentage"
-                          type="number"
-                          defaultValue="25"
-                          min="0"
-                          max="100"
-                          onChange={handleInputChange}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Percentage of lesson fee paid to assistant trainers
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="house-percentage">
-                          House Percentage (%)
-                        </Label>
-                        <Input
-                          id="house-percentage"
-                          type="number"
-                          defaultValue="15"
-                          min="0"
-                          max="100"
-                          onChange={handleInputChange}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Percentage retained by the business
-                        </p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="equipment-fee">Equipment Fee (€)</Label>
-                        <Input
-                          id="equipment-fee"
-                          type="number"
-                          defaultValue="5"
-                          min="0"
-                          step="0.50"
-                          onChange={handleInputChange}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Fixed fee per lesson for equipment usage
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold flex items-center gap-2">
-                    <CreditCard className="h-5 w-5" />
-                    Payment Processing
-                  </h4>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="processing-fee">Processing Fee (%)</Label>
-                      <Input
-                        id="processing-fee"
-                        type="number"
-                        defaultValue="2.9"
-                        min="0"
-                        step="0.1"
-                        onChange={handleInputChange}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Payment processor fee percentage
-                      </p>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="fixed-fee">
-                        Fixed Processing Fee (€)
-                      </Label>
-                      <Input
-                        id="fixed-fee"
-                        type="number"
-                        defaultValue="0.30"
-                        min="0"
-                        step="0.01"
-                        onChange={handleInputChange}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Fixed fee per transaction
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    Payout Settings
-                  </h4>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="payout-schedule">Payout Schedule</Label>
-                      <Select
-                        defaultValue="weekly"
-                        onValueChange={handleInputChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="daily">Daily</SelectItem>
-                          <SelectItem value="weekly">
-                            Weekly (Fridays)
-                          </SelectItem>
-                          <SelectItem value="bi-weekly">Bi-weekly</SelectItem>
-                          <SelectItem value="monthly">Monthly</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="minimum-payout">
-                        Minimum Payout Amount (€)
-                      </Label>
-                      <Input
-                        id="minimum-payout"
-                        type="number"
-                        defaultValue="25"
-                        min="0"
-                        step="5"
-                        onChange={handleInputChange}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Minimum amount before payout is processed
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
 
           {/* Promo Codes */}
@@ -1632,6 +1882,101 @@ export default function Settings() {
                   </CardHeader>
                   <CardContent>
                     <Accordion type="single" collapsible className="space-y-4">
+                      <AccordionItem value="reservation-confirmation">
+                        <AccordionTrigger>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4" />
+                            Reservation Confirmation
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="space-y-6 pt-4">
+                            <div className="space-y-3">
+                              <Label
+                                htmlFor="confirmation-subject"
+                                className="text-sm font-semibold"
+                              >
+                                Subject Line
+                              </Label>
+                              <Input
+                                id="confirmation-subject"
+                                defaultValue="Your surf lesson is confirmed! 🏄‍♂️"
+                                onChange={handleInputChange}
+                              />
+                            </div>
+                            <Separator />
+                            <div className="space-y-3">
+                              <Label
+                                htmlFor="confirmation-template"
+                                className="text-sm font-semibold"
+                              >
+                                Email Template
+                              </Label>
+                              <Textarea
+                                id="confirmation-template"
+                                rows={10}
+                                onChange={(e) =>
+                                  handleTemplateChange(
+                                    "confirmation-template",
+                                    e.target.value
+                                  )
+                                }
+                                defaultValue="Hi {customer_name},
+
+Your reservation has been confirmed!
+
+Booking Details:
+- Booking Reference: {booking_id}
+- Activity: {activity}
+- Date: {date}
+- Time: {time}
+- Duration: {duration}
+- Instructor: {instructor}
+- Number of Participants: {participants}
+- Total Price: €{total_price}
+
+Location:
+Praia de Ribeira d'Ilhas
+2655-319 Ericeira, Portugal
+
+What to bring:
+- Swimwear
+- Towel
+- Sunscreen
+- Water bottle
+
+All equipment (surfboard and wetsuit) will be provided.
+
+Important Information:
+- Please arrive 15 minutes before your scheduled time
+- {cancellation_policy}
+
+Questions? Reply to this email or call us at +351 261 860 492
+
+See you on the water!
+ReserveSurf Team"
+                              />
+                              <div className="flex justify-between items-center">
+                                <p
+                                  className={`text-xs ${getCharacterCountColor(
+                                    templateCharCounts["confirmation-template"] || 0
+                                  )}`}
+                                >
+                                  Character count:{" "}
+                                  {templateCharCounts["confirmation-template"] || 0}/
+                                  {CHARACTER_LIMIT}
+                                </p>
+                                {templateErrors["confirmation-template"] && (
+                                  <p className="text-xs text-red-600">
+                                    {templateErrors["confirmation-template"]}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+
                       <AccordionItem value="first-time-signup">
                         <AccordionTrigger>
                           <div className="flex items-center gap-2">
@@ -2102,6 +2447,57 @@ The ReserveSurf Team"
                         collapsible
                         className="space-y-4"
                       >
+                        <AccordionItem value="sms-confirmation">
+                          <AccordionTrigger>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle className="h-4 w-4" />
+                              Reservation Confirmation SMS
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4 pt-4">
+                              <div className="space-y-2">
+                                <Label
+                                  htmlFor="sms-confirmation-template"
+                                  className="text-sm font-semibold"
+                                >
+                                  SMS Template
+                                </Label>
+                                <Textarea
+                                  id="sms-confirmation-template"
+                                  rows={3}
+                                  onChange={(e) =>
+                                    handleTemplateChange(
+                                      "sms-confirmation-template",
+                                      e.target.value
+                                    )
+                                  }
+                                  defaultValue="Confirmed! Your {activity} is booked for {date} at {time}. Ref: {booking_id}. Location: Praia de Ribeira d'Ilhas. Arrive 15min early. 🏄‍♂️"
+                                />
+                                <div className="flex justify-between items-center">
+                                  <p
+                                    className={`text-xs ${getCharacterCountColor(
+                                      templateCharCounts[
+                                        "sms-confirmation-template"
+                                      ] || 0
+                                    )}`}
+                                  >
+                                    Character count:{" "}
+                                    {templateCharCounts["sms-confirmation-template"] ||
+                                      0}
+                                    /{CHARACTER_LIMIT}
+                                  </p>
+                                  {templateErrors["sms-confirmation-template"] && (
+                                    <p className="text-xs text-red-600">
+                                      {templateErrors["sms-confirmation-template"]}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+
                         <AccordionItem value="sms-first-time">
                           <AccordionTrigger>
                             <div className="flex items-center gap-2">
@@ -2472,56 +2868,105 @@ The ReserveSurf Team"
           <TabsContent value="integrations" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Connected Apps</CardTitle>
+                <CardTitle>Calendar Integration</CardTitle>
                 <CardDescription>
-                  Manage your third-party integrations and connected services
+                  Sync your bookings with Google Calendar for seamless
+                  scheduling
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {integrations.map((integration, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
-                          <Zap className="h-5 w-5" />
+                <div className="space-y-6">
+                  {/* Google Calendar Section */}
+                  <div className="flex items-center justify-between p-6 border rounded-lg bg-muted/50">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-background rounded-lg flex items-center justify-center border">
+                        <CalendarIcon className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-lg">
+                          {googleCalendarIntegration.name}
                         </div>
-                        <div>
-                          <div className="font-medium">{integration.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {integration.description}
+                        <div className="text-sm text-muted-foreground">
+                          {googleCalendarIntegration.description}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Badge
+                        variant={
+                          getStatusColor(googleCalendarIntegration.status) as
+                            | "default"
+                            | "secondary"
+                            | "destructive"
+                            | "outline"
+                        }
+                      >
+                        {googleCalendarIntegration.status}
+                      </Badge>
+                      <Button
+                        variant={
+                          googleCalendarIntegration.status === "connected"
+                            ? "outline"
+                            : "default"
+                        }
+                        size="sm"
+                      >
+                        {googleCalendarIntegration.status === "connected"
+                          ? "Configure"
+                          : "Connect"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Calendar Sync Settings */}
+                  {googleCalendarIntegration.status === "connected" && (
+                    <>
+                      <Separator />
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold">Sync Settings</h3>
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <Label>Auto-sync new bookings</Label>
+                              <p className="text-sm text-muted-foreground">
+                                Automatically add new bookings to your Google
+                                Calendar
+                              </p>
+                            </div>
+                            <Switch
+                              defaultChecked
+                              onChange={handleInputChange}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <Label>Sync cancellations</Label>
+                              <p className="text-sm text-muted-foreground">
+                                Remove cancelled bookings from your calendar
+                              </p>
+                            </div>
+                            <Switch
+                              defaultChecked
+                              onChange={handleInputChange}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <Label>Include customer details</Label>
+                              <p className="text-sm text-muted-foreground">
+                                Add customer name and contact info to calendar
+                                events
+                              </p>
+                            </div>
+                            <Switch
+                              defaultChecked
+                              onChange={handleInputChange}
+                            />
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <Badge
-                          variant={
-                            getStatusColor(integration.status) as
-                              | "default"
-                              | "secondary"
-                              | "destructive"
-                              | "outline"
-                          }
-                        >
-                          {integration.status}
-                        </Badge>
-                        <Button
-                          variant={
-                            integration.status === "connected"
-                              ? "outline"
-                              : "default"
-                          }
-                          size="sm"
-                        >
-                          {integration.status === "connected"
-                            ? "Configure"
-                            : "Connect"}
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -2530,116 +2975,632 @@ The ReserveSurf Team"
               <CardHeader>
                 <CardTitle>API Access</CardTitle>
                 <CardDescription>
-                  Manage API keys and webhook endpoints
+                  Integrate ReserveSurf with your applications using our RESTful
+                  API and real-time webhooks
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="api-key">API Key</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="api-key"
-                      type="password"
-                      value="sk_live_xxxxxxxxxxxxxxxxxxxx"
-                      readOnly
-                    />
-                    <Button variant="outline">Copy</Button>
+              <CardContent className="space-y-6">
+                {/* API Key Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Database className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-semibold">
+                      API Authentication
+                    </h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Use your API key to authenticate requests to the ReserveSurf
+                    API. Include it in the Authorization header of your
+                    requests.
+                  </p>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="api-key">API Key</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="api-key"
+                        type="password"
+                        value="sk_live_xxxxxxxxxxxxxxxxxxxx"
+                        readOnly
+                        className="font-mono"
+                      />
+                      <Button variant="outline">Copy</Button>
+                    </div>
+                    <div className="bg-muted/50 p-4 rounded-lg">
+                      <p className="text-sm font-medium mb-2">
+                        Example API Request:
+                      </p>
+                      <pre className="text-xs text-muted-foreground bg-background p-3 rounded border overflow-x-auto">
+                        {`curl -X GET "https://api.reservesurf.com/v1/bookings" \\
+  -H "Authorization: Bearer sk_live_xxxxxxxxxxxxxxxxxxxx" \\
+  -H "Content-Type: application/json"`}
+                      </pre>
+                    </div>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="webhook-url">Webhook URL</Label>
-                  <Input
-                    id="webhook-url"
-                    placeholder="https://your-app.com/webhooks/reservesurf"
-                  />
+
+                <Separator />
+
+                {/* Webhook Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Webhook className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-semibold">
+                      Webhook Notifications
+                    </h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Receive real-time notifications about booking events,
+                    cancellations, and customer updates directly to your
+                    application.
+                  </p>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="webhook-url">Webhook Endpoint URL</Label>
+                    <Input
+                      id="webhook-url"
+                      placeholder="https://your-app.com/webhooks/reservesurf"
+                      onChange={handleInputChange}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Your endpoint must respond with a 200 status code within
+                      10 seconds to acknowledge receipt.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label>Webhook Events</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                        <input
+                          type="checkbox"
+                          defaultChecked
+                          className="rounded"
+                        />
+                        <div>
+                          <Label className="text-sm font-medium">
+                            booking.created
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            New booking made
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                        <input
+                          type="checkbox"
+                          defaultChecked
+                          className="rounded"
+                        />
+                        <div>
+                          <Label className="text-sm font-medium">
+                            booking.cancelled
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Booking cancelled
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                        <input
+                          type="checkbox"
+                          defaultChecked
+                          className="rounded"
+                        />
+                        <div>
+                          <Label className="text-sm font-medium">
+                            booking.updated
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Booking details changed
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                        <input type="checkbox" className="rounded" />
+                        <div>
+                          <Label className="text-sm font-medium">
+                            customer.created
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            New customer registered
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-muted/50 p-4 rounded-lg">
+                    <p className="text-sm font-medium mb-2">
+                      Example Webhook Payload:
+                    </p>
+                    <pre className="text-xs text-muted-foreground bg-background p-3 rounded border overflow-x-auto">
+                      {`{
+  "event": "booking.created",
+  "timestamp": "2024-03-15T10:30:00Z",
+  "data": {
+    "booking_id": "bk_1234567890",
+    "customer": {
+      "name": "João Silva",
+      "email": "joao@example.com",
+      "phone": "+351 912 345 678"
+    },
+    "activity": "Surf Lessons",
+    "date": "2024-03-20",
+    "time": "14:00",
+    "duration": 2,
+    "price": 45.00,
+    "status": "confirmed"
+  }
+}`}
+                    </pre>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button variant="outline">
+                      <Webhook className="h-4 w-4 mr-2" />
+                      Test Webhook
+                    </Button>
+                    <Button variant="outline">View Documentation</Button>
+                  </div>
                 </div>
-                <Button variant="outline">
-                  <Webhook className="h-4 w-4 mr-2" />
-                  Test Webhook
-                </Button>
+
+                <Separator />
+
+                {/* API Endpoints Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Database className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-semibold">
+                      Available Endpoints
+                    </h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Common API endpoints you can use to integrate with
+                    ReserveSurf. Base URL: https://api.reservesurf.com/v1
+                  </p>
+
+                  <div className="space-y-3">
+                    <div className="border rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline" className="text-xs font-mono">
+                          GET
+                        </Badge>
+                        <code className="text-sm">/bookings</code>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Retrieve all bookings with optional filtering by date,
+                        status, or customer
+                      </p>
+                    </div>
+
+                    <div className="border rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline" className="text-xs font-mono">
+                          POST
+                        </Badge>
+                        <code className="text-sm">/bookings</code>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Create a new booking for a customer
+                      </p>
+                    </div>
+
+                    <div className="border rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline" className="text-xs font-mono">
+                          GET
+                        </Badge>
+                        <code className="text-sm">/customers</code>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        List all customers with their booking history
+                      </p>
+                    </div>
+
+                    <div className="border rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline" className="text-xs font-mono">
+                          GET
+                        </Badge>
+                        <code className="text-sm">/availability</code>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Check available time slots for specific activities and
+                        dates
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button variant="outline" className="w-full">
+                    <Database className="h-4 w-4 mr-2" />
+                    View Complete API Documentation
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Team & Permissions */}
+          {/* Permissions */}
           <TabsContent value="team" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Team Members</CardTitle>
-                <CardDescription>
-                  Manage user access and permissions
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {teamMembers.map((member, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-8 w-8">
-                              <AvatarFallback>{member.name[0]}</AvatarFallback>
-                            </Avatar>
+            <Tabs defaultValue="roles" className="w-full">
+              <TabsList>
+                <TabsTrigger value="roles">Roles & Permissions</TabsTrigger>
+                <TabsTrigger value="members">Team Members</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="roles" className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold">Role Management</h2>
+                    <p className="text-muted-foreground">
+                      Manage default roles and create custom ones with specific
+                      permissions
+                    </p>
+                  </div>
+                  <Button onClick={() => setIsCreateRoleDialogOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Custom Role
+                  </Button>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Default Roles</CardTitle>
+                    <CardDescription>
+                      Pre-configured roles with standard permission sets
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {defaultRoles.map((role) => (
+                        <div
+                          key={role.id}
+                          className="flex items-center justify-between p-4 border rounded-lg"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                              <Shield className="h-5 w-5 text-primary" />
+                            </div>
                             <div>
-                              <div className="font-medium">{member.name}</div>
+                              <div className="font-medium flex items-center gap-2">
+                                {role.name}
+                                <Badge variant="outline" className="text-xs">
+                                  Default
+                                </Badge>
+                              </div>
                               <div className="text-sm text-muted-foreground">
-                                {member.email}
+                                {role.description}
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-1">
+                                {role.permissions.length} permissions
                               </div>
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{member.role}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              getStatusColor(member.status) as
-                                | "default"
-                                | "secondary"
-                                | "destructive"
-                                | "outline"
-                            }
-                          >
-                            {member.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="sm">
-                            Edit
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setSelectedRole(role)}
+                            >
+                              View Permissions
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Role Permissions</CardTitle>
-                <CardDescription>
-                  Configure what each role can access
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <Shield className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p className="text-muted-foreground">
-                    Advanced permission management coming soon
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Custom Roles</CardTitle>
+                    <CardDescription>
+                      Roles created specifically for your business needs
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {customRoles.length === 0 ? (
+                        <div className="text-center py-8">
+                          <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p className="text-muted-foreground">
+                            No custom roles created yet
+                          </p>
+                          <Button
+                            variant="outline"
+                            className="mt-4"
+                            onClick={() => setIsCreateRoleDialogOpen(true)}
+                          >
+                            Create Your First Custom Role
+                          </Button>
+                        </div>
+                      ) : (
+                        customRoles.map((role) => (
+                          <div
+                            key={role.id}
+                            className="flex items-center justify-between p-4 border rounded-lg"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center">
+                                <Users className="h-5 w-5 text-secondary" />
+                              </div>
+                              <div>
+                                <div className="font-medium flex items-center gap-2">
+                                  {role.name}
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    Custom
+                                  </Badge>
+                                </div>
+                                <div className="text-sm text-muted-foreground">
+                                  {role.description}
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  {role.permissions.length} permissions
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setSelectedRole(role)}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteCustomRole(role.id)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Permission Details Dialog */}
+                <Dialog
+                  open={!!selectedRole}
+                  onOpenChange={() => setSelectedRole(null)}
+                >
+                  <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>
+                        {selectedRole?.name} - Permissions
+                      </DialogTitle>
+                      <DialogDescription>
+                        {selectedRole?.isDefault
+                          ? "View the permissions for this default role"
+                          : "Edit permissions for this custom role"}
+                      </DialogDescription>
+                    </DialogHeader>
+                    {selectedRole && (
+                      <div className="space-y-6">
+                        <div className="space-y-4">
+                          {permissionCategories.map((category) => (
+                            <div key={category.name} className="space-y-3">
+                              <h4 className="font-semibold flex items-center gap-2">
+                                <category.icon className="h-4 w-4" />
+                                {category.name}
+                              </h4>
+                              <div className="space-y-2 pl-6">
+                                {category.permissions.map((permission) => (
+                                  <div
+                                    key={permission.key}
+                                    className="flex items-center justify-between"
+                                  >
+                                    <div>
+                                      <Label className="text-sm font-medium">
+                                        {permission.name}
+                                      </Label>
+                                      <p className="text-xs text-muted-foreground">
+                                        {permission.description}
+                                      </p>
+                                    </div>
+                                    <Switch
+                                      checked={selectedRole.permissions.includes(
+                                        permission.key
+                                      )}
+                                      disabled={selectedRole.isDefault}
+                                      onCheckedChange={(checked) => {
+                                        if (!selectedRole.isDefault) {
+                                          handlePermissionToggle(
+                                            selectedRole.id,
+                                            permission.key,
+                                            checked
+                                          );
+                                        }
+                                      }}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setSelectedRole(null)}
+                      >
+                        {selectedRole?.isDefault ? "Close" : "Cancel"}
+                      </Button>
+                      {selectedRole && !selectedRole.isDefault && (
+                        <Button onClick={() => handleSaveRole()}>
+                          Save Changes
+                        </Button>
+                      )}
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                {/* Create Custom Role Dialog */}
+                <Dialog
+                  open={isCreateRoleDialogOpen}
+                  onOpenChange={setIsCreateRoleDialogOpen}
+                >
+                  <DialogContent className="sm:max-w-[600px]">
+                    <DialogHeader>
+                      <DialogTitle>Create Custom Role</DialogTitle>
+                      <DialogDescription>
+                        Define a new role with specific permissions for your
+                        team
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        const roleData = {
+                          name: formData.get("name") as string,
+                          description: formData.get("description") as string,
+                        };
+                        handleCreateCustomRole(roleData);
+                      }}
+                    >
+                      <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="role-name">Role Name *</Label>
+                          <Input
+                            id="role-name"
+                            name="name"
+                            placeholder="e.g., Beach Manager"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="role-description">Description</Label>
+                          <Textarea
+                            id="role-description"
+                            name="description"
+                            placeholder="Brief description of this role's responsibilities"
+                            rows={3}
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          variant="outline"
+                          type="button"
+                          onClick={() => setIsCreateRoleDialogOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button type="submit">Create Role</Button>
+                      </DialogFooter>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              </TabsContent>
+
+              <TabsContent value="members" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Team Members</CardTitle>
+                    <CardDescription>
+                      Manage user access and assign roles
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>User</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {teamMembers.map((member, index) => (
+                          <TableRow key={index}>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarFallback>
+                                    {member.name[0]}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <div className="font-medium">
+                                    {member.name}
+                                  </div>
+                                  <div className="text-sm text-muted-foreground">
+                                    {member.email}
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Select
+                                defaultValue={member.role}
+                                onValueChange={() =>
+                                  handleMemberRoleChange()
+                                }
+                              >
+                                <SelectTrigger className="w-32">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {[...defaultRoles, ...customRoles].map(
+                                    (role) => (
+                                      <SelectItem
+                                        key={role.id}
+                                        value={role.name}
+                                      >
+                                        {role.name}
+                                      </SelectItem>
+                                    )
+                                  )}
+                                </SelectContent>
+                              </Select>
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  getStatusColor(member.status) as
+                                    | "default"
+                                    | "secondary"
+                                    | "destructive"
+                                    | "outline"
+                                }
+                              >
+                                {member.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-1">
+                                <Button variant="ghost" size="sm">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </TabsContent>
         </Tabs>
 

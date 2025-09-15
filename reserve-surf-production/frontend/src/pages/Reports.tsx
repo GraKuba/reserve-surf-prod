@@ -16,8 +16,8 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import {
-  Line,
-  LineChart,
+  Area,
+  AreaChart,
   Pie,
   PieChart,
   Cell,
@@ -49,6 +49,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -72,6 +73,10 @@ import {
   FileText,
   Mail,
   Printer,
+  Search,
+  Filter,
+  DollarSign,
+  CreditCard,
 } from "lucide-react";
 
 export default function Reports() {
@@ -79,6 +84,9 @@ export default function Reports() {
   const [selectedReportType, setSelectedReportType] = useState("revenue");
   const [chartType, setChartType] = useState("line");
   const [showComparison, setShowComparison] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
 
   // Mock data for reports
   const revenueData = [
@@ -149,14 +157,131 @@ export default function Reports() {
     },
   ];
 
+  // Transaction data for Finances tab
+  const mockTransactions = [
+    {
+      id: "TXN-001",
+      date: "2024-01-15",
+      time: "14:30",
+      customer: "John Smith",
+      type: "Booking Payment",
+      amount: 150.0,
+      status: "completed",
+      paymentMethod: "Credit Card",
+      bookingId: "BK-2024-001",
+      description: "Surf lesson - 2 hours",
+    },
+    {
+      id: "TXN-002",
+      date: "2024-01-15",
+      time: "12:15",
+      customer: "Sarah Johnson",
+      type: "Equipment Rental",
+      amount: 75.0,
+      status: "completed",
+      paymentMethod: "PayPal",
+      bookingId: "BK-2024-002",
+      description: "Surfboard rental - Full day",
+    },
+    {
+      id: "TXN-003",
+      date: "2024-01-14",
+      time: "16:45",
+      customer: "Mike Wilson",
+      type: "Booking Payment",
+      amount: 200.0,
+      status: "pending",
+      paymentMethod: "Bank Transfer",
+      bookingId: "BK-2024-003",
+      description: "Group lesson - 4 people",
+    },
+    {
+      id: "TXN-004",
+      date: "2024-01-14",
+      time: "10:20",
+      customer: "Emma Davis",
+      type: "Refund",
+      amount: -100.0,
+      status: "completed",
+      paymentMethod: "Credit Card",
+      bookingId: "BK-2024-004",
+      description: "Cancelled booking refund",
+    },
+    {
+      id: "TXN-005",
+      date: "2024-01-13",
+      time: "13:30",
+      customer: "Alex Brown",
+      type: "Equipment Rental",
+      amount: 45.0,
+      status: "completed",
+      paymentMethod: "Cash",
+      bookingId: "BK-2024-005",
+      description: "Wetsuit rental - Half day",
+    },
+  ];
+
+  // Helper functions for transaction formatting
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "default";
+      case "pending":
+        return "secondary";
+      case "failed":
+        return "destructive";
+      default:
+        return "outline";
+    }
+  };
+
+  const formatAmount = (amount: number) => {
+    const formatted = Math.abs(amount).toFixed(2);
+    return amount < 0 ? `-€${formatted}` : `€${formatted}`;
+  };
+
+  const getAmountColor = (amount: number) => {
+    if (amount < 0) return "text-red-600";
+    return "text-green-600";
+  };
+
+  // Calculate finance summary stats
+  const totalTransactionRevenue = mockTransactions
+    .filter((t) => t.status === "completed" && t.amount > 0)
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalRefunds = Math.abs(
+    mockTransactions
+      .filter((t) => t.status === "completed" && t.amount < 0)
+      .reduce((sum, t) => sum + t.amount, 0)
+  );
+
+  const pendingAmount = mockTransactions
+    .filter((t) => t.status === "pending")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  // Filter transactions
+  const filteredTransactions = mockTransactions.filter((transaction) => {
+    const matchesSearch =
+      transaction.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "all" || transaction.status === statusFilter;
+    const matchesType = typeFilter === "all" || transaction.type === typeFilter;
+
+    return matchesSearch && matchesStatus && matchesType;
+  });
+
   const chartConfig = {
     revenue: {
       label: "Revenue",
-      color: "hsl(var(--chart-1))",
+      color: "hsl(142, 76%, 36%)", // Green for revenue
     },
     bookings: {
       label: "Bookings",
-      color: "hsl(var(--chart-2))",
+      color: "hsl(221, 83%, 53%)", // Blue for bookings
     },
     customers: {
       label: "Customers",
@@ -164,7 +289,13 @@ export default function Reports() {
     },
   } satisfies ChartConfig;
 
-  const pieColors = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#0088fe"];
+  const pieColors = [
+    "hsl(142, 76%, 36%)",
+    "hsl(221, 83%, 53%)",
+    "hsl(38, 92%, 50%)",
+    "hsl(0, 84%, 60%)",
+    "hsl(280, 100%, 70%)",
+  ];
 
   const summaryMetrics = {
     totalRevenue: 96200,
@@ -361,28 +492,30 @@ export default function Reports() {
           <CardContent>
             {chartType === "line" && (
               <ChartContainer config={chartConfig} className="h-[400px] w-full">
-                <LineChart data={revenueData}>
+                <AreaChart data={revenueData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Line
+                  <Area
                     dataKey="revenue"
                     type="monotone"
                     stroke="var(--color-revenue)"
+                    fill="var(--color-revenue)"
+                    fillOpacity={0.3}
                     strokeWidth={2}
-                    dot={{ fill: "var(--color-revenue)" }}
                   />
                   {showComparison && (
-                    <Line
+                    <Area
                       dataKey="bookings"
                       type="monotone"
                       stroke="var(--color-bookings)"
+                      fill="var(--color-bookings)"
+                      fillOpacity={0.3}
                       strokeWidth={2}
-                      dot={{ fill: "var(--color-bookings)" }}
                     />
                   )}
-                </LineChart>
+                </AreaChart>
               </ChartContainer>
             )}
 
@@ -415,18 +548,17 @@ export default function Reports() {
           </CardContent>
         </Card>
 
-        {/* Report Templates */}
-        <Tabs defaultValue="daily" className="w-full">
+        {/* Main Tabs */}
+        <Tabs defaultValue="analytics" className="w-full">
           <div className="flex items-center justify-between">
             <TabsList>
-              <TabsTrigger value="daily">Daily Operations</TabsTrigger>
-              <TabsTrigger value="financial">Financial Reports</TabsTrigger>
-              <TabsTrigger value="marketing">Marketing Analytics</TabsTrigger>
-              <TabsTrigger value="custom">Custom Builder</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="finances">Finances</TabsTrigger>
+              <TabsTrigger value="operations">Operations</TabsTrigger>
             </TabsList>
           </div>
 
-          <TabsContent value="daily" className="space-y-6">
+          <TabsContent value="analytics" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
@@ -537,7 +669,7 @@ export default function Reports() {
             </div>
           </TabsContent>
 
-          <TabsContent value="financial" className="space-y-6">
+          <TabsContent value="operations" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <Card>
                 <CardHeader>
@@ -621,103 +753,195 @@ export default function Reports() {
             </div>
           </TabsContent>
 
-          <TabsContent value="marketing" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TabsContent value="finances" className="space-y-6">
+            {/* Finance Summary Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
-                <CardHeader>
-                  <CardTitle>Customer Acquisition</CardTitle>
-                  <CardDescription>How customers find us</CardDescription>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardDescription>Total Revenue</CardDescription>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Google Search</span>
-                      <div className="flex items-center gap-2">
-                        <Progress value={45} className="w-20" />
-                        <span className="text-sm font-medium">45%</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Social Media</span>
-                      <div className="flex items-center gap-2">
-                        <Progress value={30} className="w-20" />
-                        <span className="text-sm font-medium">30%</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Referrals</span>
-                      <div className="flex items-center gap-2">
-                        <Progress value={15} className="w-20" />
-                        <span className="text-sm font-medium">15%</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Direct</span>
-                      <div className="flex items-center gap-2">
-                        <Progress value={10} className="w-20" />
-                        <span className="text-sm font-medium">10%</span>
-                      </div>
-                    </div>
-                  </div>
+                  <CardTitle className="text-2xl font-bold text-green-600">
+                    €{totalTransactionRevenue.toFixed(2)}
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground">
+                    +12.5% from last month
+                  </p>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader>
-                  <CardTitle>Conversion Funnel</CardTitle>
-                  <CardDescription>Visitor to customer journey</CardDescription>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardDescription>Pending Payments</CardDescription>
+                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold">2,450</div>
-                      <div className="text-sm text-muted-foreground">
-                        Website Visitors
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xl font-semibold">485</div>
-                      <div className="text-sm text-muted-foreground">
-                        Inquiry Forms
-                      </div>
-                      <Badge variant="outline" className="mt-1">
-                        19.8%
-                      </Badge>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-medium">142</div>
-                      <div className="text-sm text-muted-foreground">
-                        Bookings
-                      </div>
-                      <Badge variant="secondary" className="mt-1">
-                        29.3%
-                      </Badge>
-                    </div>
-                  </div>
+                  <CardTitle className="text-2xl font-bold text-orange-600">
+                    €{pendingAmount.toFixed(2)}
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground">
+                    {mockTransactions.filter(t => t.status === "pending").length} transactions pending
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardDescription>Total Refunds</CardDescription>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <CardTitle className="text-2xl font-bold text-red-600">
+                    €{totalRefunds.toFixed(2)}
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground">
+                    -2.1% from last month
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardDescription>Transactions</CardDescription>
+                  <CreditCard className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <CardTitle className="text-2xl font-bold">
+                    {mockTransactions.length}
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground">This month</p>
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
 
-          <TabsContent value="custom" className="space-y-6">
+            {/* Transaction Filters and Search */}
             <Card>
               <CardHeader>
-                <CardTitle>Custom Report Builder</CardTitle>
-                <CardDescription>
-                  Build your own reports with custom metrics and filters
-                </CardDescription>
+                <CardTitle>Transaction History</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12">
-                  <LineChartIcon className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                  <h3 className="text-lg font-medium mb-2">
-                    Custom Report Builder
-                  </h3>
-                  <p className="text-muted-foreground mb-4">
-                    Create personalized reports with drag-and-drop interface
-                  </p>
-                  <Button>Coming Soon</Button>
+                <div className="flex flex-col space-y-4 md:flex-row md:items-center md:space-y-0 md:space-x-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search transactions..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-8"
+                      />
+                    </div>
+                  </div>
+
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-full md:w-[180px]">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="failed">Failed</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={typeFilter} onValueChange={setTypeFilter}>
+                    <SelectTrigger className="w-full md:w-[180px]">
+                      <SelectValue placeholder="Filter by type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="Booking Payment">Booking Payment</SelectItem>
+                      <SelectItem value="Equipment Rental">Equipment Rental</SelectItem>
+                      <SelectItem value="Refund">Refund</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Button variant="outline" size="sm">
+                    <Filter className="mr-2 h-4 w-4" />
+                    More Filters
+                  </Button>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Transactions Table */}
+            <Card>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Transaction ID</TableHead>
+                      <TableHead>Date & Time</TableHead>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Payment Method</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Amount</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredTransactions.map((transaction) => (
+                      <TableRow key={transaction.id}>
+                        <TableCell className="font-medium">
+                          {transaction.id}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="text-sm">{transaction.date}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {transaction.time}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{transaction.customer}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{transaction.type}</Badge>
+                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate">
+                          {transaction.description}
+                        </TableCell>
+                        <TableCell>{transaction.paymentMethod}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={getStatusBadgeVariant(transaction.status)}
+                          >
+                            {transaction.status.charAt(0).toUpperCase() +
+                              transaction.status.slice(1)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell
+                          className={`text-right font-medium ${getAmountColor(
+                            transaction.amount
+                          )}`}
+                        >
+                          {formatAmount(transaction.amount)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+
+                {filteredTransactions.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <div className="text-muted-foreground">
+                      No transactions found matching your criteria
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="mt-4"
+                      onClick={() => {
+                        setSearchTerm("");
+                        setStatusFilter("all");
+                        setTypeFilter("all");
+                      }}
+                    >
+                      Clear Filters
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
