@@ -48,7 +48,7 @@ export function LoginForm({
 
               {/* Main text at the bottom */}
               <div className="relative z-10">
-                <p className="text-background/90 text-base xl:text-lg mb-3 xl:mb-4 font-medium">
+                <p className="text-black/40 text-base xl:text-lg mb-3 xl:mb-4 font-medium">
                   You can easily
                 </p>
                 <h2 className="text-2xl xl:text-3xl font-bold text-black/70 leading-tight drop-shadow-lg">
@@ -89,7 +89,7 @@ export function LoginForm({
             </div>
 
             {/* Right Panel - Login Form */}
-            <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-12 xl:p-16">
+            <div className="flex-1 flex items-center bg-white justify-center p-6 sm:p-8 lg:p-12 xl:p-16">
               <div className="w-full max-w-sm sm:max-w-md">
                 <div className="mb-6 sm:mb-8">
                   <div className="flex items-center gap-3 mb-3 sm:mb-4">

@@ -11,6 +11,7 @@ import {
   Euro,
 } from "lucide-react";
 import Footer from "@/components/Footer";
+import dashboardScreenshot from "/dashboard-screenshot.png";
 
 // Import ShadCN components
 import { Button } from "@/components/ui/button";
@@ -203,7 +204,7 @@ const BusinessLanding = () => {
                 </div>
                 <div className="relative">
                   <img
-                    src="/dashboard-screenshot.png"
+                    src={dashboardScreenshot}
                     alt="ReserveSurf Operator Dashboard showing real-time bookings, ocean conditions, and staff scheduling"
                     className="w-full h-auto"
                   />
