@@ -11,7 +11,7 @@ import {
   Euro,
 } from "lucide-react";
 import Footer from "@/components/Footer";
-import dashboardScreenshot from "/dashboard-screenshot.png";
+// Image is in public directory, referenced directly in src attribute
 
 // Import ShadCN components
 import { Button } from "@/components/ui/button";
@@ -204,7 +204,7 @@ const BusinessLanding = () => {
                 </div>
                 <div className="relative">
                   <img
-                    src={dashboardScreenshot}
+                    src="/dashboard-screenshot.png"
                     alt="ReserveSurf Operator Dashboard showing real-time bookings, ocean conditions, and staff scheduling"
                     className="w-full h-auto"
                   />
