@@ -4,12 +4,13 @@ import { Card, CardContent } from '@/components/ui/card'
 import EmergencyContact from '@/components/onboarding/EmergencyContact'
 import { useOnboardingStep, useOnboardingStore } from '@/store/onboarding/onboardingStore'
 import { ArrowLeft, ArrowRight, Shield, SkipForward } from 'lucide-react'
+import type { OnboardingState } from '@/types/onboarding'
 
 export default function EmergencyContactPage() {
   const navigate = useNavigate()
   const { markStepCompleted, setCurrentStep } = useOnboardingStep()
-  const emergencyContact = useOnboardingStore((state) => state.emergencyContact)
-  const updateEmergencyContact = useOnboardingStore((state) => state.updateEmergencyContact)
+  const emergencyContact = useOnboardingStore((state: OnboardingState) => state.emergencyContact)
+  const updateEmergencyContact = useOnboardingStore((state: OnboardingState) => state.updateEmergencyContact)
 
   const isComplete = emergencyContact.name && emergencyContact.phone && emergencyContact.relationship
 

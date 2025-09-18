@@ -4,12 +4,13 @@ import { Card, CardContent } from '@/components/ui/card'
 import DigitalWaiver from '@/components/onboarding/DigitalWaiver'
 import { useOnboardingStep, useOnboardingStore } from '@/store/onboarding/onboardingStore'
 import { ArrowLeft, ArrowRight, FileCheck } from 'lucide-react'
+import type { OnboardingState } from '@/types/onboarding'
 
 export default function WaiverPage() {
   const navigate = useNavigate()
   const { markStepCompleted, setCurrentStep } = useOnboardingStep()
-  const waiver = useOnboardingStore((state) => state.waiver)
-  const updateWaiver = useOnboardingStore((state) => state.updateWaiver)
+  const waiver = useOnboardingStore((state: OnboardingState) => state.waiver)
+  const updateWaiver = useOnboardingStore((state: OnboardingState) => state.updateWaiver)
 
   const canProceed = waiver.agreed && waiver.signedName && waiver.signature
 

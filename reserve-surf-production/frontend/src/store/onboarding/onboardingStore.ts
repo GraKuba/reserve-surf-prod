@@ -1,6 +1,15 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import type { OnboardingState, OnboardingStep } from '@/types/onboarding'
+import type { 
+  OnboardingState, 
+  OnboardingStep, 
+  OnboardingUser, 
+  AssessmentData, 
+  EmergencyContact, 
+  WaiverData, 
+  LessonBooking, 
+  PaymentData 
+} from '@/types/onboarding'
 
 const STEP_ORDER: OnboardingStep[] = [
   'welcome',
@@ -49,43 +58,43 @@ export const useOnboardingStore = create<OnboardingState>()(
       },
 
       markStepCompleted: (step: OnboardingStep) => {
-        set((state) => ({
+        set((state: OnboardingState) => ({
           completedSteps: [...new Set([...state.completedSteps, step])]
         }))
       },
 
-      updateUser: (data) => {
-        set((state) => ({
+      updateUser: (data: Partial<OnboardingUser>) => {
+        set((state: OnboardingState) => ({
           user: { ...state.user, ...data }
         }))
       },
 
-      updateAssessment: (data) => {
-        set((state) => ({
+      updateAssessment: (data: Partial<AssessmentData>) => {
+        set((state: OnboardingState) => ({
           assessment: { ...state.assessment, ...data }
         }))
       },
 
-      updateEmergencyContact: (data) => {
-        set((state) => ({
+      updateEmergencyContact: (data: Partial<EmergencyContact>) => {
+        set((state: OnboardingState) => ({
           emergencyContact: { ...state.emergencyContact, ...data }
         }))
       },
 
-      updateWaiver: (data) => {
-        set((state) => ({
+      updateWaiver: (data: Partial<WaiverData>) => {
+        set((state: OnboardingState) => ({
           waiver: { ...state.waiver, ...data }
         }))
       },
 
-      updateBooking: (data) => {
-        set((state) => ({
+      updateBooking: (data: Partial<LessonBooking>) => {
+        set((state: OnboardingState) => ({
           booking: { ...state.booking, ...data }
         }))
       },
 
-      updatePayment: (data) => {
-        set((state) => ({
+      updatePayment: (data: Partial<PaymentData>) => {
+        set((state: OnboardingState) => ({
           payment: { ...state.payment, ...data }
         }))
       },
@@ -109,7 +118,7 @@ export const useOnboardingStore = create<OnboardingState>()(
     {
       name: 'onboarding-storage',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
+      partialize: (state: OnboardingState) => ({
         currentStep: state.currentStep,
         completedSteps: state.completedSteps,
         user: state.user,
@@ -128,11 +137,11 @@ export const useOnboardingStore = create<OnboardingState>()(
 
 // Helper hooks for specific parts of the store
 export const useOnboardingStep = () => {
-  const currentStep = useOnboardingStore((state) => state.currentStep)
-  const completedSteps = useOnboardingStore((state) => state.completedSteps)
-  const setCurrentStep = useOnboardingStore((state) => state.setCurrentStep)
-  const markStepCompleted = useOnboardingStore((state) => state.markStepCompleted)
-  const canAccessStep = useOnboardingStore((state) => state.canAccessStep)
+  const currentStep = useOnboardingStore((state: OnboardingState) => state.currentStep)
+  const completedSteps = useOnboardingStore((state: OnboardingState) => state.completedSteps)
+  const setCurrentStep = useOnboardingStore((state: OnboardingState) => state.setCurrentStep)
+  const markStepCompleted = useOnboardingStore((state: OnboardingState) => state.markStepCompleted)
+  const canAccessStep = useOnboardingStore((state: OnboardingState) => state.canAccessStep)
 
   const goToNextStep = () => {
     const currentIndex = STEP_ORDER.indexOf(currentStep)
@@ -172,20 +181,20 @@ export const useOnboardingStep = () => {
 }
 
 export const useOnboardingUser = () => {
-  const user = useOnboardingStore((state) => state.user)
-  const updateUser = useOnboardingStore((state) => state.updateUser)
+  const user = useOnboardingStore((state: OnboardingState) => state.user)
+  const updateUser = useOnboardingStore((state: OnboardingState) => state.updateUser)
   return { user, updateUser }
 }
 
 export const useOnboardingAssessment = () => {
-  const assessment = useOnboardingStore((state) => state.assessment)
-  const updateAssessment = useOnboardingStore((state) => state.updateAssessment)
+  const assessment = useOnboardingStore((state: OnboardingState) => state.assessment)
+  const updateAssessment = useOnboardingStore((state: OnboardingState) => state.updateAssessment)
   return { assessment, updateAssessment }
 }
 
 export const useOnboardingBooking = () => {
-  const booking = useOnboardingStore((state) => state.booking)
-  const updateBooking = useOnboardingStore((state) => state.updateBooking)
+  const booking = useOnboardingStore((state: OnboardingState) => state.booking)
+  const updateBooking = useOnboardingStore((state: OnboardingState) => state.updateBooking)
   return { booking, updateBooking }
 }
 

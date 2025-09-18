@@ -6,6 +6,7 @@ import { MotionHighlight } from "@/components/ui/motion-highlight";
 import { QRCode } from "@/components/ui/qr-code";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import type { OnboardingState } from "@/types/onboarding";
 import {
   CheckCircle2,
   Calendar,
@@ -31,7 +32,7 @@ export default function ConfirmationPage() {
   const [showFireworks, setShowFireworks] = useState(true);
   const { booking } = useOnboardingBooking();
   const { user } = useOnboardingUser();
-  const resetOnboarding = useOnboardingStore((state) => state.resetOnboarding);
+  const resetOnboarding = useOnboardingStore((state: OnboardingState) => state.resetOnboarding);
 
   // Generate booking reference
   const bookingReference = `RS-${Date.now().toString(36).toUpperCase()}`;

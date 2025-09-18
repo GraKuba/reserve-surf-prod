@@ -186,7 +186,7 @@ export function BookingSummary({ onConfirm, onBack, onEditDate, onEditLesson }: 
                 <div>
                   <p className="text-sm text-muted-foreground mb-2">Medical Considerations</p>
                   <div className="flex flex-wrap gap-2">
-                    {assessment.medicalConditions.map((condition, index) => (
+                    {assessment.medicalConditions.map((condition: string, index: number) => (
                       <Badge key={index} variant="secondary">{condition}</Badge>
                     ))}
                   </div>
