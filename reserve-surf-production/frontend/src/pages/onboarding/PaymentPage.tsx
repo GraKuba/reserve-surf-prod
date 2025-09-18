@@ -1,4 +1,3 @@
-import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PaymentForm } from '@/components/onboarding/PaymentForm'
 import { useOnboardingBooking } from '@/store/onboarding/onboardingStore'

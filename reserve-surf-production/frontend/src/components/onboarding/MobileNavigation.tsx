@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Home, 
@@ -14,27 +14,31 @@ import {
 } from 'lucide-react';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
 import { IconButton } from '@/components/ui/icon-button';
-import { motion, useAnimation, PanInfo } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
+import type { PanInfo } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useOnboardingStore } from '@/store/onboarding/onboardingStore';
+import type { OnboardingStep } from '@/types/onboarding';
 
 interface NavigationItem {
   id: string;
   label: string;
   icon: React.ElementType;
   path: string;
-  step: number;
+  step: OnboardingStep;
 }
 
 const navigationItems: NavigationItem[] = [
-  { id: 'welcome', label: 'Welcome', icon: Home, path: '/onboarding', step: 0 },
-  { id: 'auth', label: 'Sign Up', icon: User, path: '/onboarding/auth', step: 1 },
-  { id: 'assessment', label: 'Assessment', icon: ClipboardCheck, path: '/onboarding/assessment', step: 2 },
-  { id: 'legal', label: 'Legal', icon: Shield, path: '/onboarding/legal', step: 3 },
-  { id: 'recommendations', label: 'Lessons', icon: Target, path: '/onboarding/lessons', step: 4 },
-  { id: 'booking', label: 'Schedule', icon: Calendar, path: '/onboarding/booking', step: 5 },
-  { id: 'payment', label: 'Payment', icon: CreditCard, path: '/onboarding/payment', step: 6 },
-  { id: 'confirmation', label: 'Confirm', icon: CheckCircle, path: '/onboarding/confirmation', step: 7 },
+  { id: 'welcome', label: 'Welcome', icon: Home, path: '/onboarding', step: 'welcome' },
+  { id: 'auth', label: 'Sign Up', icon: User, path: '/onboarding/auth', step: 'auth' },
+  { id: 'assessment', label: 'Assessment', icon: ClipboardCheck, path: '/onboarding/assessment', step: 'assessment' },
+  { id: 'profile', label: 'Profile', icon: User, path: '/onboarding/profile', step: 'profile' },
+  { id: 'waiver', label: 'Legal', icon: Shield, path: '/onboarding/waiver', step: 'waiver' },
+  { id: 'emergency', label: 'Emergency', icon: User, path: '/onboarding/emergency', step: 'emergency' },
+  { id: 'recommendations', label: 'Lessons', icon: Target, path: '/onboarding/recommendations', step: 'recommendations' },
+  { id: 'booking', label: 'Schedule', icon: Calendar, path: '/onboarding/booking', step: 'booking' },
+  { id: 'payment', label: 'Payment', icon: CreditCard, path: '/onboarding/payment', step: 'payment' },
+  { id: 'confirmation', label: 'Confirm', icon: CheckCircle, path: '/onboarding/confirmation', step: 'confirmation' },
 ];
 
 export function MobileNavigation() {
@@ -56,11 +60,13 @@ export function MobileNavigation() {
 
   const getCurrentStepIndex = () => {
     const item = navigationItems.find(item => location.pathname === item.path);
-    return item ? item.step : 0;
+    return item ? navigationItems.indexOf(item) : 0;
   };
 
-  const canNavigateTo = (step: number) => {
-    return step === 0 || step <= currentStep || completedSteps.includes(step - 1);
+  const canNavigateTo = (step: OnboardingStep) => {
+    const stepIndex = navigationItems.findIndex(item => item.step === step);
+    const currentIndex = navigationItems.findIndex(item => item.step === currentStep);
+    return stepIndex === 0 || stepIndex <= currentIndex || completedSteps.includes(navigationItems[stepIndex - 1]?.step);
   };
 
   const handleNavigation = (item: NavigationItem) => {
@@ -70,7 +76,7 @@ export function MobileNavigation() {
     }
   };
 
-  const handleSwipe = (event: any, info: PanInfo) => {
+  const handleSwipe = (_event: any, info: PanInfo) => {
     const threshold = 50;
     const currentIndex = getCurrentStepIndex();
     
@@ -198,7 +204,7 @@ export function MobileNavigation() {
             <IconButton
               icon={ChevronRight}
               onClick={() => handleStepNavigation('next')}
-              disabled={getCurrentStepIndex() === navigationItems.length - 1 || !canNavigateTo(getCurrentStepIndex() + 1)}
+              disabled={getCurrentStepIndex() === navigationItems.length - 1 || (getCurrentStepIndex() < navigationItems.length - 1 && !canNavigateTo(navigationItems[getCurrentStepIndex() + 1].step))}
               size="md"
               className="min-w-[44px] min-h-[44px]"
               aria-label="Next step"

@@ -1,15 +1,21 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Waves, Lock, User, ArrowRight, Sparkles } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Lock, User, ArrowRight, Sparkles } from "lucide-react";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -22,10 +28,10 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     // Simulate loading for premium feel
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
     const success = login(username, password);
     if (!success) {
       setError(true);
@@ -38,8 +44,7 @@ export default function LoginPage() {
     <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-background">
       {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-primary/20 animate-gradient-shift" />
-      
-      
+
       {/* Floating shapes */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl animate-float" />
@@ -48,13 +53,16 @@ export default function LoginPage() {
       </div>
 
       {/* Main content */}
-      <Card className={`w-full max-w-md relative z-10 border-primary/20 bg-background/95 backdrop-blur-xl shadow-2xl transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+      <Card
+        className={`w-full max-w-md relative z-10 border-primary/20 bg-background/95 backdrop-blur-xl shadow-2xl transition-all duration-1000 ${
+          mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+        }`}
+      >
         <CardHeader className="space-y-1 pb-6">
           <div className="flex justify-center mb-6">
             <div className="relative">
               <div className="absolute inset-0 bg-primary/30 blur-2xl rounded-full animate-pulse" />
-              <div className="relative p-8 rounded-2xl bg-gradient-to-br from-primary via-accent to-primary shadow-2xl">
-              </div>
+              <div className="relative p-8 rounded-2xl bg-gradient-to-br from-primary via-accent to-primary shadow-2xl"></div>
             </div>
           </div>
           <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient-text">
@@ -69,7 +77,10 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-sm font-medium flex items-center gap-2">
+              <Label
+                htmlFor="username"
+                className="text-sm font-medium flex items-center gap-2"
+              >
                 <User className="h-3 w-3" />
                 Username
               </Label>
@@ -85,7 +96,10 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium flex items-center gap-2">
+              <Label
+                htmlFor="password"
+                className="text-sm font-medium flex items-center gap-2"
+              >
                 <Lock className="h-3 w-3" />
                 Password
               </Label>
@@ -107,8 +121,8 @@ export default function LoginPage() {
                 </AlertDescription>
               </Alert>
             )}
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full bg-gradient-to-r from-primary to-accent border-2 border-primary/20 hover:border-primary hover:from-primary/80 hover:to-accent/80 transition-all duration-300 shadow-lg hover:shadow-xl group"
               size="lg"
               disabled={isLoading}
@@ -143,7 +157,9 @@ export default function LoginPage() {
       {/* Premium badge */}
       <div className="absolute top-8 right-8 z-20">
         <div className="px-4 py-2 rounded-full bg-gradient-to-r from-primary/20 to-accent/20 backdrop-blur-xl border border-primary/20 shadow-xl">
-          <span className="text-xs font-semibold text-primary">PREMIUM DEMO</span>
+          <span className="text-xs font-semibold text-primary">
+            PREMIUM DEMO
+          </span>
         </div>
       </div>
     </div>

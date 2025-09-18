@@ -43,16 +43,21 @@ export interface WaiverData {
 export interface LessonBooking {
   lessonId?: string
   lessonTitle?: string
+  lessonType?: string
   instructorId?: string
   instructorName?: string
+  instructor?: string
   date?: string
+  selectedDate?: string
   timeSlot?: string
+  selectedTime?: string
   duration?: number
   price?: number
   location?: string
   equipmentIncluded?: boolean
   groupSize?: number
   spotsAvailable?: number
+  specialRequests?: string
 }
 
 export interface PaymentData {

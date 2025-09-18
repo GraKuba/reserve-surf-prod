@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -31,7 +31,7 @@ const paymentSchema = z.object({
   expiryDate: z.string().regex(/^\d{2}\/\d{2}$/, 'Invalid expiry date (MM/YY)').optional(),
   cvv: z.string().min(3, 'CVV must be at least 3 digits').optional(),
   billingEmail: z.string().email('Invalid email address'),
-  savePaymentMethod: z.boolean().default(false),
+  savePaymentMethod: z.boolean(),
   termsAccepted: z.boolean().refine(val => val === true, {
     message: 'You must accept the terms and conditions'
   })

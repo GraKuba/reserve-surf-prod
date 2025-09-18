@@ -1,10 +1,8 @@
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
 import { Ruler, Weight, Footprints, Waves, Info } from 'lucide-react'
 import type { PhysicalInfo as PhysicalInfoType } from '@/types/onboarding'
 

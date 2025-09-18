@@ -1,21 +1,21 @@
 import { useForm } from 'react-hook-form'
-import type { UseFormProps } from 'react-hook-form'
+import type { UseFormProps, FieldValues } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useState, useEffect } from 'react'
 import { useOnboardingStore } from '../store/onboarding/onboardingStore'
 
-interface UseOnboardingFormProps<T extends z.ZodType> {
+interface UseOnboardingFormProps<T extends z.ZodType<any, any, any>, TFieldValues extends FieldValues = z.infer<T>> {
   schema: T
-  defaultValues?: UseFormProps<z.infer<T>>['defaultValues']
-  mode?: UseFormProps<z.infer<T>>['mode']
-  onSubmit?: (data: z.infer<T>) => void | Promise<void>
+  defaultValues?: UseFormProps<TFieldValues>['defaultValues']
+  mode?: UseFormProps<TFieldValues>['mode']
+  onSubmit?: (data: TFieldValues) => void | Promise<void>
   persistKey?: string // Key to persist form data in localStorage
   autoSave?: boolean // Auto-save form data on change
   autoSaveDelay?: number // Delay before auto-saving (ms)
 }
 
-export function useOnboardingForm<T extends z.ZodType>({
+export function useOnboardingForm<T extends z.ZodType<any, any, any>, TFieldValues extends FieldValues = z.infer<T>>({
   schema,
   defaultValues,
   mode = 'onBlur',
@@ -23,7 +23,7 @@ export function useOnboardingForm<T extends z.ZodType>({
   persistKey,
   autoSave = false,
   autoSaveDelay = 1000
-}: UseOnboardingFormProps<T>) {
+}: UseOnboardingFormProps<T, TFieldValues>) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [autoSaveTimer, setAutoSaveTimer] = useState<NodeJS.Timeout | null>(null)
@@ -46,8 +46,8 @@ export function useOnboardingForm<T extends z.ZodType>({
     return defaultValues
   }
   
-  const form = useForm<z.infer<T>>({
-    resolver: zodResolver(schema),
+  const form = useForm<TFieldValues>({
+    resolver: zodResolver(schema) as any,
     defaultValues: getPersistedData(),
     mode,
     criteriaMode: 'all'
@@ -121,14 +121,14 @@ export function useOnboardingForm<T extends z.ZodType>({
   })
   
   // Helper to check if a field has an error
-  const hasFieldError = (fieldName: keyof z.infer<T>): boolean => {
-    return !!formState.errors[fieldName as string]
+  const hasFieldError = (fieldName: keyof TFieldValues): boolean => {
+    return !!(formState.errors as any)[fieldName as string]
   }
   
   // Helper to get field error message
-  const getFieldError = (fieldName: keyof z.infer<T>): string | undefined => {
-    const error = formState.errors[fieldName as string]
-    return error?.message
+  const getFieldError = (fieldName: keyof TFieldValues): string | undefined => {
+    const error = (formState.errors as any)[fieldName as string]
+    return typeof error?.message === 'string' ? error.message : undefined
   }
   
   // Helper to check if form is valid
@@ -151,16 +151,16 @@ export function useOnboardingForm<T extends z.ZodType>({
 }
 
 // Specialized hook for multi-step forms
-interface UseMultiStepFormProps<T extends z.ZodType> extends UseOnboardingFormProps<T> {
+interface UseMultiStepFormProps<T extends z.ZodType<any, any, any>, TFieldValues extends FieldValues = z.infer<T>> extends UseOnboardingFormProps<T, TFieldValues> {
   stepKey: string
-  onStepComplete?: (data: z.infer<T>) => void | Promise<void>
+  onStepComplete?: (data: TFieldValues) => void | Promise<void>
 }
 
-export function useMultiStepForm<T extends z.ZodType>({
+export function useMultiStepForm<T extends z.ZodType<any, any, any>, TFieldValues extends FieldValues = z.infer<T>>({
   stepKey,
   onStepComplete,
   ...props
-}: UseMultiStepFormProps<T>) {
+}: UseMultiStepFormProps<T, TFieldValues>) {
   const { updateAssessment, markStepCompleted } = useOnboardingStore()
   
   const form = useOnboardingForm({

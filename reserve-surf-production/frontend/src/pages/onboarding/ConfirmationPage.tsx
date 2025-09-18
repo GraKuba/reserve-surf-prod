@@ -1,29 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { FireworksBackground } from '@/components/ui/fireworks-background';
-import { MotionHighlight } from '@/components/ui/motion-highlight';
-import { QRCode } from '@/components/ui/qr-code';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { 
-  CheckCircle2, 
-  Calendar, 
-  MapPin, 
-  Clock, 
-  Users, 
-  Download, 
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FireworksBackground } from "@/components/ui/fireworks-background";
+import { MotionHighlight } from "@/components/ui/motion-highlight";
+import { QRCode } from "@/components/ui/qr-code";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  CheckCircle2,
+  Calendar,
+  MapPin,
+  Clock,
+  Users,
+  Download,
   Share2,
   Mail,
   Home,
-  Sparkles
-} from 'lucide-react';
-import { 
-  useOnboardingStore, 
-  useOnboardingBooking, 
-  useOnboardingUser 
-} from '@/store/onboarding/onboardingStore';
-import { format } from 'date-fns';
+  Sparkles,
+} from "lucide-react";
+import {
+  useOnboardingStore,
+  useOnboardingBooking,
+  useOnboardingUser,
+} from "@/store/onboarding/onboardingStore";
+import { format } from "date-fns";
 
 export default function ConfirmationPage() {
   const navigate = useNavigate();
@@ -35,19 +35,19 @@ export default function ConfirmationPage() {
 
   // Generate booking reference
   const bookingReference = `RS-${Date.now().toString(36).toUpperCase()}`;
-  
+
   // Create booking URL for QR code
   const bookingUrl = `${window.location.origin}/booking/view/${bookingReference}`;
 
   useEffect(() => {
     // Send confirmation email
     sendConfirmationEmail();
-    
+
     // Hide fireworks after 5 seconds
     const timer = setTimeout(() => {
       setShowFireworks(false);
     }, 5000);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -55,40 +55,53 @@ export default function ConfirmationPage() {
     // TODO: Replace with actual API call
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       setIsEmailSent(true);
-      
+
       // Update store to mark onboarding as complete
-      useOnboardingStore.setState({ 
-        completedAt: new Date().toISOString() 
+      useOnboardingStore.setState({
+        completedAt: new Date().toISOString(),
       });
     } catch (error) {
-      console.error('Failed to send confirmation email:', error);
+      console.error("Failed to send confirmation email:", error);
     }
   };
 
   const handleCalendarExport = () => {
     if (!booking.selectedDate || !booking.selectedTime) return;
-    
-    const startDate = new Date(`${booking.selectedDate}T${booking.selectedTime}`);
+
+    const startDate = new Date(
+      `${booking.selectedDate}T${booking.selectedTime}`
+    );
     const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1 hour duration
-    
+
     const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//ReserveSurf//EN
 BEGIN:VEVENT
 UID:${bookingReference}@reservesurf.com
-DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}Z
-DTSTART:${startDate.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}Z
-DTEND:${endDate.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}Z
-SUMMARY:${booking.lessonType || 'Surf Lesson'} - ReserveSurf
+DTSTAMP:${new Date()
+      .toISOString()
+      .replace(/[-:]/g, "")
+      .replace(/\.\d{3}/, "")}Z
+DTSTART:${startDate
+      .toISOString()
+      .replace(/[-:]/g, "")
+      .replace(/\.\d{3}/, "")}Z
+DTEND:${endDate
+      .toISOString()
+      .replace(/[-:]/g, "")
+      .replace(/\.\d{3}/, "")}Z
+SUMMARY:${booking.lessonType || "Surf Lesson"} - ReserveSurf
 DESCRIPTION:Your surf lesson is confirmed! Reference: ${bookingReference}
-LOCATION:${booking.location || 'Beach Location'}
+LOCATION:${booking.location || "Beach Location"}
 END:VEVENT
 END:VCALENDAR`;
-    
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const link = document.createElement('a');
+
+    const blob = new Blob([icsContent], {
+      type: "text/calendar;charset=utf-8",
+    });
+    const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
     link.download = `reservesurf-${bookingReference}.ics`;
     link.click();
@@ -96,31 +109,31 @@ END:VCALENDAR`;
 
   const handleShare = async () => {
     const shareData = {
-      title: 'My ReserveSurf Booking',
+      title: "My ReserveSurf Booking",
       text: `I just booked a surf lesson with ReserveSurf! Reference: ${bookingReference}`,
       url: bookingUrl,
     };
-    
+
     try {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
         // Fallback to copying to clipboard
         await navigator.clipboard.writeText(bookingUrl);
-        alert('Booking link copied to clipboard!');
+        alert("Booking link copied to clipboard!");
       }
     } catch (error) {
-      console.error('Error sharing:', error);
+      console.error("Error sharing:", error);
     }
   };
 
   const handleStartNewBooking = () => {
     resetOnboarding();
-    navigate('/onboarding');
+    navigate("/onboarding");
   };
 
   const handleGoToProfile = () => {
-    navigate('/profile/skill-passport');
+    navigate("/profile/skill-passport");
   };
 
   return (
@@ -130,7 +143,7 @@ END:VCALENDAR`;
         <div className="fixed inset-0 z-50 pointer-events-none">
           <FireworksBackground
             population={3}
-            color={['#ff6b6b', '#4ecdc4', '#45b7d1', '#f7dc6f', '#bb8fce']}
+            color={["#ff6b6b", "#4ecdc4", "#45b7d1", "#f7dc6f", "#bb8fce"]}
             particleSize={{ min: 1, max: 3 }}
             fireworkSize={{ min: 3, max: 6 }}
           />
@@ -148,14 +161,14 @@ END:VCALENDAR`;
         >
           <div className="relative">
             <motion.div
-              animate={{ 
+              animate={{
                 rotate: [0, 360],
               }}
-              transition={{ 
+              transition={{
                 duration: 2,
                 repeat: Infinity,
                 repeatType: "loop",
-                ease: "linear"
+                ease: "linear",
               }}
               className="absolute -inset-4"
             >
@@ -189,7 +202,7 @@ END:VCALENDAR`;
         >
           <Card className="p-6 mb-6">
             <h2 className="text-xl font-semibold mb-4">Booking Details</h2>
-            
+
             <div className="grid md:grid-cols-2 gap-6">
               {/* Left Column - Details */}
               <div className="space-y-4">
@@ -198,7 +211,12 @@ END:VCALENDAR`;
                   <div>
                     <p className="font-medium">Date</p>
                     <p className="text-sm text-muted-foreground">
-                      {booking.selectedDate ? format(new Date(booking.selectedDate), 'EEEE, MMMM d, yyyy') : 'Not selected'}
+                      {booking.selectedDate
+                        ? format(
+                            new Date(booking.selectedDate),
+                            "EEEE, MMMM d, yyyy"
+                          )
+                        : "Not selected"}
                     </p>
                   </div>
                 </div>
@@ -208,7 +226,7 @@ END:VCALENDAR`;
                   <div>
                     <p className="font-medium">Time</p>
                     <p className="text-sm text-muted-foreground">
-                      {booking.selectedTime || 'Not selected'}
+                      {booking.selectedTime || "Not selected"}
                     </p>
                   </div>
                 </div>
@@ -218,7 +236,7 @@ END:VCALENDAR`;
                   <div>
                     <p className="font-medium">Location</p>
                     <p className="text-sm text-muted-foreground">
-                      {booking.location || 'Main Beach, Surf School'}
+                      {booking.location || "Main Beach, Surf School"}
                     </p>
                   </div>
                 </div>
@@ -228,7 +246,7 @@ END:VCALENDAR`;
                   <div>
                     <p className="font-medium">Instructor</p>
                     <p className="text-sm text-muted-foreground">
-                      {booking.instructor || 'Will be assigned'}
+                      {booking.instructor || "Will be assigned"}
                     </p>
                   </div>
                 </div>
@@ -237,10 +255,7 @@ END:VCALENDAR`;
               {/* Right Column - QR Code */}
               <div className="flex flex-col items-center justify-center">
                 <div className="w-48 h-48 bg-white p-4 rounded-lg border">
-                  <QRCode 
-                    data={bookingUrl}
-                    className="w-full h-full"
-                  />
+                  <QRCode data={bookingUrl} className="w-full h-full" />
                 </div>
                 <p className="text-xs text-muted-foreground mt-2 text-center">
                   Show this code at check-in
@@ -250,24 +265,20 @@ END:VCALENDAR`;
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-2 mt-6 pt-6 border-t">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={handleCalendarExport}
               >
                 <Download className="w-4 h-4 mr-2" />
                 Add to Calendar
               </Button>
-              
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleShare}
-              >
+
+              <Button variant="outline" size="sm" onClick={handleShare}>
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
               </Button>
-              
+
               {isEmailSent && (
                 <div className="flex items-center gap-2 ml-auto text-sm text-muted-foreground">
                   <Mail className="w-4 h-4" />
@@ -286,31 +297,34 @@ END:VCALENDAR`;
         >
           <Card className="p-6 mb-6">
             <h2 className="text-xl font-semibold mb-4">What's Next?</h2>
-            
-            <MotionHighlight 
-              mode="children" 
-              className="rounded-lg"
-              hover
-            >
+
+            <MotionHighlight mode="children" className="rounded-lg" hover>
               <div className="space-y-3">
                 <div className="p-3 rounded-lg transition-colors">
                   <h3 className="font-medium mb-1">1. Check Your Email</h3>
                   <p className="text-sm text-muted-foreground">
-                    We've sent detailed instructions and preparation tips to your email
+                    We've sent detailed instructions and preparation tips to
+                    your email
                   </p>
                 </div>
-                
+
                 <div className="p-3 rounded-lg transition-colors">
-                  <h3 className="font-medium mb-1">2. Prepare for Your Lesson</h3>
+                  <h3 className="font-medium mb-1">
+                    2. Prepare for Your Lesson
+                  </h3>
                   <p className="text-sm text-muted-foreground">
-                    Bring swimwear, towel, sunscreen, and water. We'll provide the rest!
+                    Bring swimwear, towel, sunscreen, and water. We'll provide
+                    the rest!
                   </p>
                 </div>
-                
+
                 <div className="p-3 rounded-lg transition-colors">
-                  <h3 className="font-medium mb-1">3. Arrive 15 Minutes Early</h3>
+                  <h3 className="font-medium mb-1">
+                    3. Arrive 15 Minutes Early
+                  </h3>
                   <p className="text-sm text-muted-foreground">
-                    This gives you time to check in, meet your instructor, and get equipped
+                    This gives you time to check in, meet your instructor, and
+                    get equipped
                   </p>
                 </div>
               </div>
@@ -325,15 +339,11 @@ END:VCALENDAR`;
           transition={{ delay: 0.9 }}
           className="flex flex-col sm:flex-row gap-4"
         >
-          <Button 
-            onClick={handleGoToProfile}
-            className="flex-1"
-            size="lg"
-          >
+          <Button onClick={handleGoToProfile} className="flex-1" size="lg">
             View My Skill Passport
           </Button>
-          
-          <Button 
+
+          <Button
             variant="outline"
             onClick={handleStartNewBooking}
             className="flex-1"

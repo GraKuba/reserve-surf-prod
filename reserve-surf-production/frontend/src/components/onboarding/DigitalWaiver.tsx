@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { FileText, PenTool, Check, AlertCircle, Eraser, Download, Eye } from 'lucide-react'
+import { FileText, PenTool, Check, AlertCircle, Eraser, Eye } from 'lucide-react'
 import type { WaiverData } from '@/types/onboarding'
 
 interface DigitalWaiverProps {

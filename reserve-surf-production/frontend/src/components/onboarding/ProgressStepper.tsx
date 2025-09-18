@@ -37,7 +37,7 @@ export default function ProgressStepper({
   compact = false
 }: ProgressStepperProps) {
   const { currentStep, completedSteps, canAccessStep } = useOnboardingStep()
-  const { getRovingProps } = useRovingTabIndex(stepConfig.length)
+  const { getRovingProps } = useRovingTabIndex()
 
   const currentStepIndex = stepConfig.findIndex(s => s.id === currentStep)
 

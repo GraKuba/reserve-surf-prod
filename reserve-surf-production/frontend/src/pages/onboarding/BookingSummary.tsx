@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
 import { format } from 'date-fns'
 import { 
   Calendar, 
@@ -22,7 +21,6 @@ import {
   Waves
 } from 'lucide-react'
 import { useOnboardingBooking, useOnboardingUser, useOnboardingAssessment } from '@/store/onboarding/onboardingStore'
-import { cn } from '@/lib/utils'
 
 interface BookingSummaryProps {
   onConfirm: () => void

@@ -39,15 +39,11 @@ export const magicLinkSchema = z.object({
 
 // Assessment schemas
 export const sportSelectionSchema = z.object({
-  sport: z.enum(['surfing', 'kitesurfing', 'both'], {
-    errorMap: () => ({ message: 'Please select a sport' })
-  })
+  sport: z.enum(['surfing', 'kitesurfing', 'both']).describe('Please select a sport')
 })
 
 export const skillLevelSchema = z.object({
-  skillLevel: z.enum(['beginner', 'intermediate', 'advanced', 'expert'], {
-    errorMap: () => ({ message: 'Please select your skill level' })
-  }),
+  skillLevel: z.enum(['beginner', 'intermediate', 'advanced', 'expert']).describe('Please select your skill level'),
   previousExperience: z.string().max(500, 'Please keep your answer under 500 characters').optional()
 })
 
@@ -67,9 +63,7 @@ export const physicalInfoSchema = z.object({
   shoeSize: z.string()
     .regex(/^(EU\s)?3[6-9]|4[0-9]|5[0]$/, 'Please enter a valid shoe size (e.g., EU 42)')
     .optional(),
-  wetsuitSize: z.enum(['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'], {
-    errorMap: () => ({ message: 'Please select a wetsuit size' })
-  }).optional()
+  wetsuitSize: z.enum(['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']).describe('Please select a wetsuit size').optional()
 })
 
 export const swimAbilitySchema = z.object({
@@ -89,9 +83,7 @@ export const emergencyContactSchema = z.object({
     .max(100, 'Name is too long'),
   phone: z.string()
     .regex(/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number'),
-  relationship: z.enum(['parent', 'spouse', 'sibling', 'friend', 'other'], {
-    errorMap: () => ({ message: 'Please select a relationship' })
-  })
+  relationship: z.enum(['parent', 'spouse', 'sibling', 'friend', 'other']).describe('Please select a relationship')
 })
 
 // Optional emergency contact for skipping
@@ -279,7 +271,7 @@ export const validateAsync = async <T>(
 export const formatZodErrors = (errors: z.ZodError): Record<string, string> => {
   const formatted: Record<string, string> = {}
   
-  errors.errors.forEach((error) => {
+  errors.issues.forEach((error: z.ZodIssue) => {
     const path = error.path.join('.')
     if (!formatted[path]) {
       formatted[path] = error.message
@@ -293,7 +285,7 @@ export const formatZodErrors = (errors: z.ZodError): Record<string, string> => {
 export const getFieldError = (errors: z.ZodError | undefined, field: string): string | undefined => {
   if (!errors) return undefined
   
-  const fieldError = errors.errors.find((error) => 
+  const fieldError = errors.issues.find((error: z.ZodIssue) => 
     error.path.join('.') === field
   )
   

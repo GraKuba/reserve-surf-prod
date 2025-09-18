@@ -205,7 +205,7 @@ export const useAutoFocus = (shouldFocus: boolean = true) => {
 /**
  * Custom hook for managing roving tabindex
  */
-export const useRovingTabIndex = (itemCount: number) => {
+export const useRovingTabIndex = () => {
   const [focusedIndex, setFocusedIndex] = useState(0);
 
   const getRovingProps = useCallback(

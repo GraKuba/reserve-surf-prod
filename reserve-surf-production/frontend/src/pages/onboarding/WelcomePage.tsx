@@ -60,7 +60,7 @@ export default function WelcomePage() {
         className="flex flex-col items-center justify-center px-4"
         backgroundFill="transparent"
         blur={prefersReducedMotion ? 0 : 3}
-        speed={prefersReducedMotion ? "none" : "slow"}
+        speed={prefersReducedMotion ? "slow" : "slow"}
         waveOpacity={prefersReducedMotion ? 0.1 : 0.3}
       >
         <div className="max-w-6xl mx-auto w-full" id="main-content" ref={mainContentRef as any}>

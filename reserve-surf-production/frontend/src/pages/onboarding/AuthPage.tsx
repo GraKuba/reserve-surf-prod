@@ -12,7 +12,7 @@ import { useOnboardingStep, useOnboardingUser } from '@/store/onboarding/onboard
 import { Eye, EyeOff, Mail, Chrome, Apple, Loader2, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react'
 import { useOnboardingForm, useFormErrorRecovery } from '@/hooks/useOnboardingForm'
 import { useAutoFocus, useAnnouncement } from '@/hooks/useAccessibility'
-import { focusStyles, announceToScreenReader, generateAriaId } from '@/lib/accessibility'
+import { focusStyles } from '@/lib/accessibility'
 import { 
   signupSchema, 
   loginSchema, 
@@ -29,14 +29,40 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [magicLinkSent, setMagicLinkSent] = useState(false)
-  const { handleError, retry, lastError } = useFormErrorRecovery()
+  const { handleError, retry } = useFormErrorRecovery()
   const { announcementRef, announce } = useAnnouncement()
   const mainContentRef = useAutoFocus(true)
   
-  // Generate unique IDs for ARIA relationships
-  const emailErrorId = generateAriaId('email-error')
-  const passwordErrorId = generateAriaId('password-error')
-  const passwordStrengthId = generateAriaId('password-strength')
+  const handleLogin = async (data: LoginFormData) => {
+    try {
+      // Simulate API call
+      await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          // Simulate validation error for demo
+          if (data.email === 'test@error.com') {
+            reject(new Error('Invalid credentials'))
+          } else {
+            resolve(true)
+          }
+        }, 1500)
+      })
+      
+      updateUser({
+        email: data.email,
+      })
+      
+      if (data.rememberMe) {
+        localStorage.setItem('rememberedEmail', data.email)
+      }
+      
+      markStepCompleted('auth')
+      setCurrentStep('assessment')
+      navigate('/onboarding/assessment')
+    } catch (error) {
+      handleError(error as Error)
+      throw error // Let the form handle the error
+    }
+  }
 
   const signupForm = useOnboardingForm({
     schema: signupSchema,
@@ -62,28 +88,26 @@ export default function AuthPage() {
       password: '',
       rememberMe: false
     },
-    mode: 'onBlur'
+    mode: 'onBlur',
+    onSubmit: handleLogin
   })
 
-  // Define handleMagicLink before using it (will update with form reference later)
-  const handleMagicLinkImpl = async (data: MagicLinkFormData, formInstance: any) => {
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      setMagicLinkSent(true)
-      setTimeout(() => setMagicLinkSent(false), 5000)
-    } catch (error) {
-      const recovery = handleError(error as Error)
-      formInstance.setError('root', { message: recovery.message })
-    }
-  }
-
-  const magicLinkForm = useOnboardingForm({
+  const magicLinkForm = useOnboardingForm<typeof magicLinkSchema>({
     schema: magicLinkSchema,
     defaultValues: {
       email: ''
     },
     mode: 'onChange',
-    onSubmit: (data) => handleMagicLinkImpl(data, magicLinkForm)
+    onSubmit: async (_data: MagicLinkFormData) => {
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        setMagicLinkSent(true)
+        setTimeout(() => setMagicLinkSent(false), 5000)
+      } catch (error) {
+        const recovery = handleError(error as Error)
+        throw new Error(recovery.message)
+      }
+    }
   })
 
   // Announce errors to screen readers
@@ -132,37 +156,6 @@ export default function AuthPage() {
       } else {
         signupForm.setError('root', { message: recovery.message })
       }
-    }
-  }
-
-  const handleLogin = async (data: LoginFormData) => {
-    try {
-      // Simulate API call
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // Simulate validation error for demo
-          if (data.email === 'test@error.com') {
-            reject(new Error('Invalid credentials'))
-          } else {
-            resolve(true)
-          }
-        }, 1500)
-      })
-      
-      updateUser({
-        email: data.email,
-      })
-      
-      if (data.rememberMe) {
-        localStorage.setItem('rememberedEmail', data.email)
-      }
-      
-      markStepCompleted('auth')
-      setCurrentStep('assessment')
-      navigate('/onboarding/assessment')
-    } catch (error) {
-      const recovery = handleError(error as Error)
-      loginForm.setError('root', { message: recovery.message })
     }
   }
 
