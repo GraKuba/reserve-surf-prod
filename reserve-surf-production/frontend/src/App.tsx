@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LandingPage from "./pages/LandingPage";
+import ClientLanding from "./pages/ClientLanding";
 import BookingDetails from "./pages/BookingDetails";
 import BookingGear from "./pages/BookingGear";
 import BookingPayment from "./pages/BookingPayment";
@@ -24,9 +24,9 @@ function App() {
     <Router>
       <div className="min-h-screen bg-background text-foreground">
         <Routes>
-          {/* Landing Page */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/business" element={<BusinessLanding />} />
+          {/* Landing Pages */}
+          <Route path="/" element={<BusinessLanding />} />
+          <Route path="/client" element={<ClientLanding />} />
           <Route path="/theme-demo" element={<ThemeDemo />} />
 
           {/* Booking Routes */}

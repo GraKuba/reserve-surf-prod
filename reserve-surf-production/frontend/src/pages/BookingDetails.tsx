@@ -44,7 +44,7 @@ export default function BookingDetails() {
       <header className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center gap-4">
-            <Link to="/">
+            <Link to="/client">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back

@@ -45,8 +45,8 @@ const BusinessLanding = () => {
       {/* Navigation Bar */}
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4">
-          <div className="flex h-20 items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="flex h-16 items-center justify-between">
+            <div className="flex items-center gap-3">
               <Link to="/" className="flex items-center gap-2">
                 <div className="h-8 w-8 bg-gradient-to-br from-primary to-accent rounded-lg"></div>
                 <span className="text-xl font-bold font-sans">ReserveSurf</span>
@@ -56,7 +56,10 @@ const BusinessLanding = () => {
               </Badge>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" asChild className="hidden md:flex">
+                <Link to="/client">For Customers</Link>
+              </Button>
               <Button variant="outline" asChild className="hidden md:flex">
                 <Link to="/operator/login">Login</Link>
               </Button>
@@ -89,16 +92,16 @@ const BusinessLanding = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 lg:py-32">
+      <section className="py-16 lg:py-24">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
+            <div className="space-y-6">
               <Badge variant="secondary" className="w-fit font-sans">
                 <Users className="h-3 w-3 mr-1" />
                 Stop Drowning in Admin, Start Riding the Wave 🌊
               </Badge>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <h1 className="text-4xl lg:text-6xl font-bold tracking-tight font-serif">
                   Your Surf School,{" "}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
@@ -114,9 +117,9 @@ const BusinessLanding = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 gap-6 text-base font-sans">
+              <div className="grid grid-cols-1 gap-5 text-base font-sans">
                 <div className="flex items-start gap-3">
-                  <span className="text-2xl mt-1">📲</span>
+                  <span className="text-xl mt-0.5">📲</span>
                   <div>
                     <span className="font-semibold text-foreground">
                       Bookings on Autopilot
@@ -128,7 +131,7 @@ const BusinessLanding = () => {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <span className="text-2xl mt-1">🏄</span>
+                  <span className="text-xl mt-0.5">🏄</span>
                   <div>
                     <span className="font-semibold text-foreground">
                       Digital Skill Passports
@@ -140,7 +143,7 @@ const BusinessLanding = () => {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <span className="text-2xl mt-1">📝</span>
+                  <span className="text-xl mt-0.5">📝</span>
                   <div>
                     <span className="font-semibold text-foreground">
                       Waivers Without the Hassle
@@ -153,10 +156,10 @@ const BusinessLanding = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button
                   size="lg"
-                  className="text-base sm:text-lg px-6 sm:px-8 py-6 bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
+                  className="text-base px-6 py-5 bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
                 >
                   Get Early Access
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -164,7 +167,7 @@ const BusinessLanding = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="text-base sm:text-lg px-6 sm:px-8 py-6 border-2"
+                  className="text-base px-6 py-5 border-2"
                 >
                   <Play className="mr-2 h-4 w-4" />
                   Watch Demo

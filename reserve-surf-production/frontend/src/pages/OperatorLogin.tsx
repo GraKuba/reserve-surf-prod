@@ -1,6 +1,7 @@
 import { LoginForm } from "@/components/LoginForm";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
 
 export default function OperatorLogin() {
@@ -24,25 +25,34 @@ export default function OperatorLogin() {
         <div className="absolute bottom-1/4 left-1/5 w-40 h-28 bg-gradient-to-r from-primary/10 to-muted/15 rounded-lg blur-sm transform rotate-12" style={{ animation: 'rotate 15s linear infinite 4s' }}></div>
       </div>
       
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 relative z-10">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="text-xl font-bold">ReserveSurf</div>
-            <Link to="/">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Site
+      {/* Navigation Bar - matching BusinessLanding */}
+      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4">
+          <div className="flex h-20 items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link to="/" className="flex items-center gap-2">
+                <div className="h-8 w-8 bg-gradient-to-br from-primary to-accent rounded-lg"></div>
+                <span className="text-xl font-bold font-sans">ReserveSurf</span>
+              </Link>
+              <Badge variant="secondary" className="text-xs font-sans">
+                for Business
+              </Badge>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Button variant="outline" asChild>
+                <Link to="/">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Site
+                </Link>
               </Button>
-            </Link>
+            </div>
           </div>
         </div>
       </header>
 
-      <div className="flex min-h-[calc(100vh-80px)] w-full items-center justify-center p-6 md:p-10 relative z-10">
-        <div className="w-full max-w-sm">
-          <LoginForm />
-        </div>
+      <div className="relative z-10">
+        <LoginForm />
       </div>
     </div>
   );

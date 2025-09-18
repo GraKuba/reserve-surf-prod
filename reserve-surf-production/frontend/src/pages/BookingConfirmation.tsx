@@ -206,7 +206,7 @@ export default function BookingConfirmation() {
               <Separator />
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <Link to="/" className="flex-1">
+                <Link to="/client" className="flex-1">
                   <Button variant="outline" className="w-full">
                     Book Another Session
                   </Button>

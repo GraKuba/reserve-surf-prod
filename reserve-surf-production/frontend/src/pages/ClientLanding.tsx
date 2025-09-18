@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -79,14 +80,14 @@ const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Brand */}
-          <div className="flex items-center space-x-2">
+          <Link to="/client" className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
               <Waves className="w-6 h-6 text-primary-foreground" />
             </div>
             <span className="text-xl font-bold text-foreground font-sans">
               ReserveSurf
             </span>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
@@ -128,9 +129,9 @@ const Navigation = () => {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
+                  <Link to="/" className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
                     For Business
-                  </NavigationMenuLink>
+                  </Link>
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
@@ -171,9 +172,11 @@ const Navigation = () => {
               <Button variant="ghost" className="w-full justify-start">
                 About Us
               </Button>
-              <Button variant="ghost" className="w-full justify-start">
-                For Business
-              </Button>
+              <Link to="/" className="w-full">
+                <Button variant="ghost" className="w-full justify-start">
+                  For Business
+                </Button>
+              </Link>
               <Button variant="ghost" className="w-full justify-start">
                 Login
               </Button>
@@ -1365,7 +1368,7 @@ const Footer = () => {
   );
 };
 
-export default function LandingPage() {
+export default function ClientLanding() {
   return (
     <div className="min-h-screen">
       <Navigation />
