@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import ClientLanding from "./pages/ClientLanding";
 import BookingDetails from "./pages/BookingDetails";
 import BookingGear from "./pages/BookingGear";
@@ -19,11 +21,28 @@ import Notifications from "./pages/Notifications";
 import BusinessLanding from "./pages/BusinessLanding";
 import { ThemeDemo } from "./components/ThemeDemo";
 
+// Profile imports
+import SkillPassport from "./pages/profile/SkillPassport";
+
+// Onboarding imports
+import OnboardingLayout from "./pages/onboarding/OnboardingLayout";
+import WelcomePage from "./pages/onboarding/WelcomePage";
+import AuthPage from "./pages/onboarding/AuthPage";
+import AssessmentQuiz from "./pages/onboarding/AssessmentQuiz";
+import WaiverPage from "./pages/onboarding/WaiverPage";
+import EmergencyContactPage from "./pages/onboarding/EmergencyContactPage";
+import RecommendationsPage from "./pages/onboarding/RecommendationsPage";
+import BookingSummary from "./pages/onboarding/BookingSummary";
+import PaymentPage from "./pages/onboarding/PaymentPage";
+import ConfirmationPage from "./pages/onboarding/ConfirmationPage";
+
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-background text-foreground">
-        <Routes>
+    <AuthProvider>
+      <Router>
+        <ProtectedRoute>
+          <div className="min-h-screen bg-background text-foreground">
+            <Routes>
           {/* Landing Pages */}
           <Route path="/" element={<BusinessLanding />} />
           <Route path="/client" element={<ClientLanding />} />
@@ -51,9 +70,28 @@ function App() {
           <Route path="/operator/notifications" element={<Notifications />} />
           <Route path="/operator/settings" element={<Settings />} />
           <Route path="/operator/checkin" element={<MobileCheckin />} />
-        </Routes>
-      </div>
-    </Router>
+
+          {/* Profile Routes */}
+          <Route path="/profile/passport" element={<SkillPassport />} />
+
+          {/* Onboarding Routes */}
+          <Route path="/onboarding" element={<OnboardingLayout />}>
+            <Route index element={<WelcomePage />} />
+            <Route path="welcome" element={<WelcomePage />} />
+            <Route path="auth" element={<AuthPage />} />
+            <Route path="assessment" element={<AssessmentQuiz />} />
+            <Route path="waiver" element={<WaiverPage />} />
+            <Route path="emergency" element={<EmergencyContactPage />} />
+            <Route path="recommendations" element={<RecommendationsPage />} />
+            <Route path="booking" element={<BookingSummary />} />
+            <Route path="payment" element={<PaymentPage />} />
+            <Route path="confirmation" element={<ConfirmationPage />} />
+          </Route>
+            </Routes>
+          </div>
+        </ProtectedRoute>
+      </Router>
+    </AuthProvider>
   );
 }
 

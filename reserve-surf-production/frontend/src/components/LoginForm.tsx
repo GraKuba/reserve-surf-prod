@@ -51,7 +51,7 @@ export function LoginForm({
                 <p className="text-black/40 text-base xl:text-lg mb-3 xl:mb-4 font-medium">
                   You can easily
                 </p>
-                <h2 className="text-2xl xl:text-3xl font-bold text-black/70 leading-tight drop-shadow-lg">
+                <h2 className="text-2xl xl:text-3xl font-bold font-serif text-black/70 leading-tight drop-shadow-lg">
                   Get access to your
                   <br />
                   personal hub for
@@ -77,7 +77,7 @@ export function LoginForm({
                     ReserveSurf
                   </span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-bold text-background drop-shadow-lg">
+                <h2 className="text-xl sm:text-2xl font-bold font-serif text-background drop-shadow-lg">
                   Surf School Management
                 </h2>
                 <p className="text-background/90 text-sm sm:text-base mt-2 font-medium">
@@ -93,7 +93,7 @@ export function LoginForm({
               <div className="w-full max-w-sm sm:max-w-md">
                 <div className="mb-6 sm:mb-8">
                   <div className="flex items-center gap-3 mb-3 sm:mb-4">
-                    <h1 className="text-2xl sm:text-3xl font-bold">
+                    <h1 className="text-2xl sm:text-3xl font-bold font-serif">
                       Welcome back
                     </h1>
                   </div>

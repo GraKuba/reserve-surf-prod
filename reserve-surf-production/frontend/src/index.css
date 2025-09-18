@@ -215,6 +215,28 @@
   75% { transform: translateY(-30px) translateX(5px); }
 }
 
+@keyframes gradient-shift {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes gradient-text {
+  0%, 100% { 
+    background-size: 200% 200%;
+    background-position: left center;
+  }
+  50% { 
+    background-size: 200% 200%;
+    background-position: right center;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
 @keyframes drift {
   0%, 100% { transform: translateX(0px) translateY(0px); }
   33% { transform: translateX(30px) translateY(-20px); }

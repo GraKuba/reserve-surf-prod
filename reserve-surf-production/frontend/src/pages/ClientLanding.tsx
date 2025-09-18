@@ -26,14 +26,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
-import {
   Carousel,
   CarouselContent,
   CarouselItem,
@@ -69,6 +61,7 @@ import {
   CreditCard,
   Smartphone,
   Globe,
+  ArrowRight,
 } from "lucide-react";
 
 // Navigation Component
@@ -76,115 +69,55 @@ const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo & Brand */}
-          <Link to="/client" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
-              <Waves className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold text-foreground font-sans">
-              ReserveSurf
-            </span>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger>Activities</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <div className="grid gap-3 p-4 w-[400px]">
-                      <NavigationMenuLink className="flex flex-col space-y-1">
-                        <div className="font-medium">Surfing Lessons</div>
-                        <p className="text-sm text-muted-foreground">
-                          Learn to surf with certified instructors
-                        </p>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink className="flex flex-col space-y-1">
-                        <div className="font-medium">Kitesurfing</div>
-                        <p className="text-sm text-muted-foreground">
-                          Experience the thrill of kitesurfing
-                        </p>
-                      </NavigationMenuLink>
-                      <NavigationMenuLink className="flex flex-col space-y-1">
-                        <div className="font-medium">Diving</div>
-                        <p className="text-sm text-muted-foreground">
-                          Explore underwater adventures
-                        </p>
-                      </NavigationMenuLink>
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
-                    Locations
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
-                    About Us
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link to="/" className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
-                    For Business
-                  </Link>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto px-4">
+        <div className="flex h-16 items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link to="/client" className="flex items-center gap-2">
+              <div className="h-8 w-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                <Waves className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <span className="text-xl font-bold font-sans">ReserveSurf</span>
+            </Link>
+            <Badge variant="secondary" className="text-xs font-sans">
+              for Customers
+            </Badge>
           </div>
 
-          {/* Right Section */}
-          <div className="flex items-center space-x-4">
-            <Button className="hidden md:inline-flex">Login</Button>
-
-            <Button className="md:hidden">Book Now</Button>
-
-            {/* Mobile menu button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" asChild className="hidden md:flex">
+              <Link to="/">For Business</Link>
+            </Button>
+            <Button variant="outline" asChild className="hidden md:flex">
+              <Link to="/login">Login</Link>
+            </Button>
+            <Button asChild className="hidden md:flex">
+              <Link to="/register">Register</Link>
+            </Button>
+            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              {isMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </Button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-border bg-card">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              <Button variant="ghost" className="w-full justify-start">
-                Activities
+          <div className="md:hidden border-t border-border pb-3 pt-2">
+            <div className="space-y-1 px-2">
+              <Button variant="ghost" className="w-full justify-start" asChild>
+                <Link to="/">For Business</Link>
               </Button>
-              <Button variant="ghost" className="w-full justify-start">
-                Locations
+              <Button variant="ghost" className="w-full justify-start" asChild>
+                <Link to="/login">Login</Link>
               </Button>
-              <Button variant="ghost" className="w-full justify-start">
-                About Us
-              </Button>
-              <Link to="/" className="w-full">
-                <Button variant="ghost" className="w-full justify-start">
-                  For Business
-                </Button>
-              </Link>
-              <Button variant="ghost" className="w-full justify-start">
-                Login
+              <Button variant="ghost" className="w-full justify-start" asChild>
+                <Link to="/register">Register</Link>
               </Button>
             </div>
           </div>
         )}
       </div>
-    </nav>
+    </header>
   );
 };
 
@@ -204,7 +137,7 @@ const HeroSection = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="relative z-10 container mx-auto px-4 text-center">
         {/* Headlines */}
         <div className="mb-8">
           <h1 className="text-4xl md:text-6xl font-bold text-primary-foreground mb-4 font-serif">
@@ -368,7 +301,7 @@ const TrustIndicators = () => {
 
   return (
     <section className="py-6 bg-muted border-t border-b border-border">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {indicators.map((indicator, index) => (
             <div
@@ -395,7 +328,7 @@ const ActivitiesSection = () => {
       title: "Surfing Lessons",
       description:
         "Learn to surf with our certified instructors in perfect conditions",
-      image: "/api/placeholder/400/300",
+      image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop&crop=face",
       price: "€65",
       duration: "2 hours",
       features: [
@@ -410,7 +343,7 @@ const ActivitiesSection = () => {
       id: "kitesurfing",
       title: "Kitesurfing",
       description: "Experience the thrill of kitesurfing with expert guidance",
-      image: "/api/placeholder/400/300",
+      image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop&crop=face",
       price: "€85",
       duration: "3 hours",
       features: [
@@ -425,7 +358,7 @@ const ActivitiesSection = () => {
       id: "diving",
       title: "Diving Adventures",
       description: "Explore the underwater world with our diving experiences",
-      image: "/api/placeholder/400/300",
+      image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop&crop=face",
       price: "€95",
       duration: "4 hours",
       features: [
@@ -440,7 +373,7 @@ const ActivitiesSection = () => {
 
   return (
     <section className="py-16 bg-muted">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
           <p className="text-sm font-semibold text-primary uppercase tracking-wide mb-2 font-sans">
@@ -554,7 +487,7 @@ const HowItWorksSection = () => {
 
   return (
     <section className="py-16 bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
           <p className="text-sm font-semibold text-primary uppercase tracking-wide mb-2 font-sans">
@@ -624,7 +557,7 @@ const InstructorShowcase = () => {
     {
       id: 1,
       name: "Emma van der Berg",
-      image: "/api/placeholder/200/200",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
       specialties: ["Kitesurfing", "Beginners"],
       languages: ["Dutch", "English", "German"],
       experience: "8 years, 2000+ lessons",
@@ -638,7 +571,7 @@ const InstructorShowcase = () => {
     {
       id: 2,
       name: "Lars Andersen",
-      image: "/api/placeholder/200/200",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
       specialties: ["Surfing", "Advanced"],
       languages: ["Dutch", "English", "Danish"],
       experience: "12 years, 3500+ lessons",
@@ -652,7 +585,7 @@ const InstructorShowcase = () => {
     {
       id: 3,
       name: "Sofia Rodriguez",
-      image: "/api/placeholder/200/200",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
       specialties: ["Diving", "Underwater Photography"],
       languages: ["Spanish", "English", "Dutch"],
       experience: "10 years, 1800+ dives",
@@ -667,7 +600,7 @@ const InstructorShowcase = () => {
 
   return (
     <section className="py-16 bg-muted">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
           <p className="text-sm font-semibold text-primary uppercase tracking-wide mb-2 font-sans">
@@ -833,7 +766,7 @@ const TestimonialsSection = () => {
     {
       id: 1,
       name: "Sarah Mitchell",
-      avatar: "/api/placeholder/40/40",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
       date: "2 days ago",
       rating: 5,
       activity: "Surfing Lesson",
@@ -844,7 +777,7 @@ const TestimonialsSection = () => {
     {
       id: 2,
       name: "Michael Chen",
-      avatar: "/api/placeholder/40/40",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
       date: "1 week ago",
       rating: 5,
       activity: "Kitesurfing",
@@ -855,7 +788,7 @@ const TestimonialsSection = () => {
     {
       id: 3,
       name: "Anna Johansson",
-      avatar: "/api/placeholder/40/40",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
       date: "2 weeks ago",
       rating: 5,
       activity: "Diving Adventure",
@@ -866,7 +799,7 @@ const TestimonialsSection = () => {
     {
       id: 4,
       name: "Tom Wilson",
-      avatar: "/api/placeholder/40/40",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
       date: "3 weeks ago",
       rating: 5,
       activity: "Surfing Lesson",
@@ -877,7 +810,7 @@ const TestimonialsSection = () => {
     {
       id: 5,
       name: "Lisa Zhang",
-      avatar: "/api/placeholder/40/40",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
       date: "1 month ago",
       rating: 4,
       activity: "Kitesurfing",
@@ -888,7 +821,7 @@ const TestimonialsSection = () => {
     {
       id: 6,
       name: "David Brown",
-      avatar: "/api/placeholder/40/40",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
       date: "1 month ago",
       rating: 5,
       activity: "Diving Adventure",
@@ -900,7 +833,7 @@ const TestimonialsSection = () => {
 
   return (
     <section className="py-16 bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
           <p className="text-sm font-semibold text-primary uppercase tracking-wide mb-2 font-sans">
@@ -1118,7 +1051,7 @@ const FAQSection = () => {
 
   return (
     <section className="py-20 bg-muted">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 font-serif">
@@ -1171,6 +1104,79 @@ const FAQSection = () => {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// Final CTA Section Component
+const FinalCTASection = () => {
+  return (
+    <section className="py-24 bg-gradient-to-b from-background to-muted/30">
+      <div className="container mx-auto px-4">
+        <div className="max-w-2xl mx-auto text-center space-y-8">
+          {/* Urgency Badge */}
+          <Badge variant="destructive" className="text-xs px-3 py-1">
+            🌊 Summer Season Opening Soon
+          </Badge>
+
+          {/* Clear Value Proposition */}
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-serif">
+            Ready to Start Your Ocean Adventure?
+          </h2>
+
+          <p className="text-xl text-muted-foreground max-w-xl mx-auto">
+            Join 5,000+ adventurers who've discovered the easiest way to book water sports. 
+            No phone calls, instant confirmation, best prices guaranteed.
+          </p>
+
+          {/* Social Proof */}
+          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <div className="flex -space-x-2">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent border-2 border-background" />
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-primary border-2 border-background" />
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-secondary to-accent border-2 border-background" />
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/80 to-secondary border-2 border-background" />
+            </div>
+            <span>Join Sarah, Mike, Emma and 4,997 others</span>
+          </div>
+
+          {/* Primary CTA Buttons - Large & Clear */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            <Button
+              size="lg"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all text-lg px-8 py-6 min-w-[200px]"
+            >
+              Book Your Adventure
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-2 hover:bg-muted shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all text-lg px-8 py-6 min-w-[200px]"
+            >
+              <Play className="mr-2 h-5 w-5" />
+              Watch How It Works
+            </Button>
+          </div>
+
+          {/* Trust Signals */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground pt-2">
+            <span className="flex items-center gap-1">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              Book in 60 seconds
+            </span>
+            <span className="flex items-center gap-1">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              100% weather refundable
+            </span>
+            <span className="flex items-center gap-1">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              Best price guarantee
+            </span>
+          </div>
         </div>
       </div>
     </section>
@@ -1370,7 +1376,7 @@ const Footer = () => {
 
 export default function ClientLanding() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background text-foreground">
       <Navigation />
       <HeroSection />
       <TrustIndicators />
@@ -1379,6 +1385,7 @@ export default function ClientLanding() {
       <InstructorShowcase />
       <TestimonialsSection />
       <FAQSection />
+      <FinalCTASection />
       <Footer />
     </div>
   );
