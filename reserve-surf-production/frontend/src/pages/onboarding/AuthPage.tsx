@@ -9,17 +9,15 @@ import { Separator } from '@/components/ui/separator'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useOnboardingStep, useOnboardingUser } from '@/store/onboarding/onboardingStore'
-import { Eye, EyeOff, Mail, Chrome, Apple, Loader2, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, Chrome, Apple, Loader2, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react'
 import { useOnboardingForm, useFormErrorRecovery } from '@/hooks/useOnboardingForm'
 import { useAutoFocus, useAnnouncement } from '@/hooks/useAccessibility'
 import { focusStyles } from '@/lib/accessibility'
 import { 
   signupSchema, 
-  loginSchema, 
-  magicLinkSchema,
+  loginSchema,
   type SignupFormData,
-  type LoginFormData,
-  type MagicLinkFormData 
+  type LoginFormData
 } from '@/schemas/onboarding.schemas'
 
 export default function AuthPage() {
@@ -28,7 +26,6 @@ export default function AuthPage() {
   const { updateUser } = useOnboardingUser()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [magicLinkSent, setMagicLinkSent] = useState(false)
   const { handleError, retry } = useFormErrorRecovery()
   const { announcementRef, announce } = useAnnouncement()
   const mainContentRef = useAutoFocus(true)
@@ -90,24 +87,6 @@ export default function AuthPage() {
     },
     mode: 'onBlur',
     onSubmit: handleLogin
-  })
-
-  const magicLinkForm = useOnboardingForm<typeof magicLinkSchema>({
-    schema: magicLinkSchema,
-    defaultValues: {
-      email: ''
-    },
-    mode: 'onChange',
-    onSubmit: async (_data: MagicLinkFormData) => {
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1500))
-        setMagicLinkSent(true)
-        setTimeout(() => setMagicLinkSent(false), 5000)
-      } catch (error) {
-        const recovery = handleError(error as Error)
-        throw new Error(recovery.message)
-      }
-    }
   })
 
   // Announce errors to screen readers
@@ -572,52 +551,6 @@ export default function AuthPage() {
               </TabsContent>
             </Tabs>
 
-            <Separator />
-
-            {/* Magic Link Option */}
-            <form onSubmit={magicLinkForm.submitHandler} className="space-y-2">
-              <Label htmlFor="magicEmail">Or use a magic link</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="magicEmail"
-                  type="email"
-                  placeholder="Enter your email"
-                  {...magicLinkForm.register('email')}
-                  disabled={magicLinkForm.isSubmitting || magicLinkSent}
-                  className={magicLinkForm.hasFieldError('email') ? 'border-destructive' : ''}
-                />
-                <Button 
-                  type="submit"
-                  variant="outline"
-                  disabled={magicLinkForm.isSubmitting || magicLinkSent || !magicLinkForm.isValid}
-                >
-                  {magicLinkForm.isSubmitting ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Mail className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-              {magicLinkForm.hasFieldError('email') && (
-                <p className="text-xs text-destructive">{magicLinkForm.getFieldError('email')}</p>
-              )}
-              {magicLinkSent && (
-                <Alert className="mt-2">
-                  <CheckCircle2 className="h-4 w-4" />
-                  <AlertDescription>
-                    Check your email for the magic link!
-                  </AlertDescription>
-                </Alert>
-              )}
-              {magicLinkForm.formState.errors.root && (
-                <Alert variant="destructive" className="mt-2">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    {magicLinkForm.formState.errors.root.message}
-                  </AlertDescription>
-                </Alert>
-              )}
-            </form>
           </CardContent>
           
           <CardFooter>

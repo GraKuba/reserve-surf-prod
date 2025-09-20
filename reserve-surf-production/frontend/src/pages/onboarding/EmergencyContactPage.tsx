@@ -18,15 +18,31 @@ export default function EmergencyContactPage() {
     if (!isComplete) return
     
     markStepCompleted('emergency')
-    setCurrentStep('recommendations')
-    navigate('/onboarding/recommendations')
+    
+    // Check if user came from new user flow
+    const flowType = sessionStorage.getItem('onboarding-flow')
+    if (flowType === 'new-user') {
+      // Return to confirmation page or go to dashboard
+      navigate('/onboarding/new-user/confirmation')
+    } else {
+      setCurrentStep('recommendations')
+      navigate('/onboarding/recommendations')
+    }
   }
 
   const handleSkip = () => {
     // Mark as completed even if skipped (user made conscious choice)
     markStepCompleted('emergency')
-    setCurrentStep('recommendations')
-    navigate('/onboarding/recommendations')
+    
+    // Check if user came from new user flow
+    const flowType = sessionStorage.getItem('onboarding-flow')
+    if (flowType === 'new-user') {
+      // Return to confirmation page or go to dashboard
+      navigate('/onboarding/new-user/confirmation')
+    } else {
+      setCurrentStep('recommendations')
+      navigate('/onboarding/recommendations')
+    }
   }
 
   const handleBack = () => {

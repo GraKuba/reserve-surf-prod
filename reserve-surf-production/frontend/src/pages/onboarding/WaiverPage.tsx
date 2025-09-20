@@ -23,7 +23,14 @@ export default function WaiverPage() {
   }
 
   const handleBack = () => {
-    navigate('/onboarding/assessment')
+    // Check if user came from new user flow
+    const flowType = sessionStorage.getItem('onboarding-flow')
+    if (flowType === 'new-user') {
+      // If from new user flow and they skipped assessment, go back to confirmation
+      navigate('/onboarding/assessment')
+    } else {
+      navigate('/onboarding/assessment')
+    }
   }
 
   return (

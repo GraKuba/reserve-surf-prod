@@ -3,7 +3,6 @@ import {
   Menu,
   Check,
   ArrowRight,
-  Play,
   Users,
   TrendingUp,
   Shield,
@@ -161,17 +160,23 @@ const BusinessLanding = () => {
                 <Button
                   size="lg"
                   className="text-base px-6 py-5 bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
+                  asChild
                 >
-                  Get Early Access
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <Link to="/onboarding">
+                    Start Booking Now
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   className="text-base px-6 py-5 border-2"
+                  asChild
                 >
-                  <Play className="mr-2 h-4 w-4" />
-                  Watch Demo
+                  <Link to="/operator/login">
+                    Operator Login
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
                 </Button>
               </div>
 

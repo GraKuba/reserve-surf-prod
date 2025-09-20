@@ -85,7 +85,13 @@ export default function AssessmentQuiz() {
     if (currentStepIndex > 0) {
       setCurrentAssessmentStep(steps[currentStepIndex - 1].id)
     } else {
-      navigate('/onboarding/auth')
+      // Check if user came from new user flow
+      const flowType = sessionStorage.getItem('onboarding-flow')
+      if (flowType === 'new-user') {
+        navigate('/onboarding/new-user/confirmation')
+      } else {
+        navigate('/onboarding/auth')
+      }
     }
     
     setIsTransitioning(false)
